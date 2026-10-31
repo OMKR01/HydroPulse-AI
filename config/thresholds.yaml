@@ -1,0 +1,41 @@
+# HydroPulse AI — Alert & Stress Thresholds
+# Default thresholds follow AGENTS.md Section 6:
+# Percentile-based historic discharge thresholds:
+# - Watch:   >= P90 (Historic 90th percentile)
+# - Warning: >= P95 (Historic 95th percentile)
+# - Danger:  >= P99 (Historic 99th percentile)
+# When official CWC warning/danger levels are verified per station,
+# they replace percentile approximations.
+
+flood:
+  method: "percentile"
+  percentiles:
+    normal: 0.0
+    watch: 0.90
+    warning: 0.95
+    danger: 0.99
+  colors:
+    normal: "#10b981"   # Emerald Green
+    watch: "#f59e0b"    # Amber / Orange
+    warning: "#ef4444"  # Coral Red
+    danger: "#991b1b"   # Crimson / Dark Red
+
+drought:
+  low_flow_percentile: 0.10  # Q90 low-flow stress (discharge < 10th percentile)
+  spi_categories:
+    extremely_wet: 2.00
+    very_wet: 1.50
+    moderately_wet: 1.00
+    near_normal: -0.99
+    moderate_drought: -1.00
+    severe_drought: -1.50
+    extreme_drought: -2.00
+
+water_quality:
+  cpcb_classes:
+    A: "Drinking water source without conventional treatment but after disinfection"
+    B: "Outdoor bathing (organized)"
+    C: "Drinking water source after conventional treatment and disinfection"
+    D: "Propagation of wild life and fisheries"
+    E: "Irrigation, industrial cooling, controlled waste disposal"
+    Below_E: "Not fit for designated uses"

@@ -1,0 +1,137 @@
+# HydroPulse AI — River Monitoring Stations (Jharkhand)
+# IMPORTANT:
+# 1. In accordance with AGENTS.md integrity rules, coordinates are candidate approximations.
+# 2. Every candidate entry is marked `verified: false` pending formal CWC/WRIS registry confirmation.
+# 3. `snap_to_river: true` instructs the ingestion pipeline to scan the local GloFAS grid cell for maximum mean discharge.
+# 4. No synthetic or invented CWC station codes are present.
+
+stations:
+  - id: damodar_ramgarh
+    name: "Damodar at Ramgarh"
+    river: "Damodar"
+    basin: "Damodar"
+    state: "Jharkhand"
+    district: "Ramgarh"
+    latitude: 23.6300
+    longitude: 85.5200
+    verified: false
+    snap_to_river: true
+    cwc_code: null
+    notes: "Upper Damodar industrial and urban corridor; candidate node."
+
+  - id: konar_gomia
+    name: "Konar at Gomia"
+    river: "Konar"
+    basin: "Damodar"
+    state: "Jharkhand"
+    district: "Bokaro"
+    latitude: 23.8000
+    longitude: 85.8300
+    verified: false
+    snap_to_river: true
+    cwc_code: null
+    notes: "Tributary of Damodar; downstream of Konar Dam."
+
+  - id: damodar_bokaro
+    name: "Damodar at Bokaro"
+    river: "Damodar"
+    basin: "Damodar"
+    state: "Jharkhand"
+    district: "Bokaro"
+    latitude: 23.7800
+    longitude: 85.9600
+    verified: false
+    snap_to_river: true
+    cwc_code: null
+    notes: "Downstream of Tenughat Dam; key industrial monitoring zone."
+
+  - id: damodar_dhanbad
+    name: "Damodar at Dhanbad (Sudamdih)"
+    river: "Damodar"
+    basin: "Damodar"
+    state: "Jharkhand"
+    district: "Dhanbad"
+    latitude: 23.6500
+    longitude: 86.4300
+    verified: false
+    snap_to_river: true
+    cwc_code: null
+    notes: "Jharia/Dhanbad coalfield belt; severe industrial runoff."
+
+  - id: barakar_maithon
+    name: "Barakar at Maithon"
+    river: "Barakar"
+    basin: "Damodar"
+    state: "Jharkhand"
+    district: "Dhanbad"
+    latitude: 23.7800
+    longitude: 86.8100
+    verified: false
+    snap_to_river: true
+    cwc_code: null
+    notes: "Major northern tributary of Damodar; Maithon reservoir confluence."
+
+  - id: subarnarekha_ranchi
+    name: "Subarnarekha at Ranchi (Getalsud)"
+    river: "Subarnarekha"
+    basin: "Subarnarekha"
+    state: "Jharkhand"
+    district: "Ranchi"
+    latitude: 23.3600
+    longitude: 85.5300
+    verified: false
+    snap_to_river: true
+    cwc_code: null
+    notes: "Upper Subarnarekha catchment; Getalsud reservoir reach."
+
+  - id: subarnarekha_chandil
+    name: "Subarnarekha at Chandil"
+    river: "Subarnarekha"
+    basin: "Subarnarekha"
+    state: "Jharkhand"
+    district: "Seraikela-Kharsawan"
+    latitude: 22.9700
+    longitude: 86.0500
+    verified: false
+    snap_to_river: true
+    cwc_code: null
+    notes: "Subarnarekha mainstream upstream of Chandil Dam."
+
+  - id: kharkai_adityapur
+    name: "Kharkai at Adityapur"
+    river: "Kharkai"
+    basin: "Subarnarekha"
+    state: "Jharkhand"
+    district: "Seraikela-Kharsawan"
+    latitude: 22.7800
+    longitude: 86.1700
+    verified: false
+    snap_to_river: true
+    cwc_code: null
+    notes: "Major southern tributary of Subarnarekha; industrial zone."
+
+  - id: subarnarekha_jamshedpur
+    name: "Subarnarekha at Jamshedpur"
+    river: "Subarnarekha"
+    basin: "Subarnarekha"
+    state: "Jharkhand"
+    district: "East Singhbhum"
+    latitude: 22.8000
+    longitude: 86.2000
+    verified: false
+    snap_to_river: true
+    cwc_code: null
+    notes: "Confluence reach of Kharkai and Subarnarekha; urban/industrial core."
+
+  - id: subarnarekha_ghatshila
+    name: "Subarnarekha at Ghatshila"
+    river: "Subarnarekha"
+    basin: "Subarnarekha"
+    state: "Jharkhand"
+    district: "East Singhbhum"
+    latitude: 22.5800
+    longitude: 86.4800
+    verified: false
+    snap_to_river: true
+    cwc_code: null
+    notes: "Downstream mining/metallurgical corridor towards Bengal border."
