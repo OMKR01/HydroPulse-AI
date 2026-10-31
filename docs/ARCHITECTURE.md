@@ -1,0 +1,70 @@
+# HydroPulse AI — System Architecture
+
+## Overview
+HydroPulse AI is engineered as a modular, reproducible hydrologic and water-quality intelligence platform tailored to the complex river basins of Jharkhand (Damodar, Subarnarekha, and tributaries).
+
+## High-Level Architecture Diagram
+
+```mermaid
+graph TD
+    subgraph DataIngestion["1. Ingestion Layer (src/hydropulse/ingest)"]
+        W[Open-Meteo Weather API<br/>ERA5 Historical + 7-Day Forecast]
+        F[Open-Meteo Flood API<br/>GloFAS v4 Gridded Reanalysis & Forecast]
+        G[India-WRIS / CWC Gauges<br/>Observed Discharge via hydroswift]
+        WQ[CPCB / JSPCB NWMP<br/>Water Quality Monthly Records]
+    end
+
+    subgraph Snapping["2. Snapping & Quality Control"]
+        S[snap_to_river()<br/>Locates local cell with maximum mean discharge]
+        QC[Cleaning & Validation<br/>Outlier detection, unit standardisation, gap logging]
+    end
+
+    subgraph Storage["3. Persistence Layer"]
+        DB[(SQLite / PostgreSQL via SQLAlchemy<br/>Every row tagged with provenance)]
+    end
+
+    subgraph Features["4. Feature Engineering (src/hydropulse/features)"]
+        Lags[Rainfall & Discharge Lags 1-14d<br/>Rolling sums 3, 7, 14, 30d]
+        SPI_Calc[Gamma-fitted SPI-1, 3, 6]
+        Topo[Upstream Topology & Static Catchment Attrs]
+    end
+
+    subgraph Modeling["5. Forecasting & Scoring Models (src/hydropulse/models)"]
+        Base[Baselines: Persistence, Climatology, Ridge]
+        LGBM[LightGBM Direct Multi-Horizon t+1..t+7]
+        LSTM[PyTorch Seq2Seq / Multi-Station LSTM]
+        Residual[Hybrid GloFAS Residual Correction]
+        Quantile[Quantile Loss P10, P50, P90]
+        WQI_Model[Weighted-Arithmetic WQI: CPCB A-E]
+        Drought_Model[Combined SPI + Q90 Low-Flow Stress]
+        SHAP_Expl[SHAP / TreeExplainer for Alert Causality]
+    end
+
+    subgraph Serving["6. API & Dashboard (src/hydropulse/api & web)"]
+        API[Flask 3 Factory & Blueprints<br/>/api/v1/health, /forecast, /alerts, /docs]
+        UI[Leaflet Map + Chart.js Dashboard<br/>Responsive, accessible, bilingual EN/HI]
+    end
+
+    W --> QC
+    F --> S --> QC
+    G --> QC
+    WQ --> QC
+    QC --> DB
+    DB --> Lags & SPI_Calc & Topo
+    Lags & SPI_Calc & Topo --> Base & LGBM & LSTM & Residual & Quantile & WQI_Model & Drought_Model
+    LGBM --> SHAP_Expl
+    Base & LGBM & LSTM & Residual & Quantile & WQI_Model & Drought_Model & SHAP_Expl --> API
+    API --> UI
+```
+
+## Component Roles
+1. **Ingestion Layer**: Fetches public data with caching, strict provenance labeling (`observed`, `model_reanalysis`, `forecast`, `synthetic`), and graceful fallbacks.
+2. **Snapping & QC**: Resolves spatial coordinate mismatch between real gauge/town coordinates and GloFAS 0.05-degree river cells via `snap_to_river()`.
+3. **Feature Pipeline (`src/hydropulse/features`)**:
+   - `cleaning.py`: Performs non-destructive anomaly tagging (`is_outlier_*`), interpolation of short gaps ($\le 3$ d) tagged with `is_interpolated=True`, and train-only scaling (`TrainOnlyScaler`).
+   - `lags.py`: Implements strictly leak-free temporal features (rainfall lags 1–14 d, rolling sums 3/7/14/30 d, API antecedent wetness proxy, cyclical calendar encodings, discharge memory, and upstream topology propagation).
+   - `spi.py`: Computes Standardized Precipitation Indices (SPI-1/3/6) via 2-parameter Gamma distribution (Thom MLE closed-form expanding window or reference period fitting).
+   - `static_attrs.py`: Injects physiographic catchment attributes (elevation, drainage area, slope, stream order, land cover) for entity-aware multi-station learning.
+   - `builder.py`: Integrates SQLite raw records, executes feature derivation, and exports per-station Parquet datasets into `data/processed/`.
+4. **Model Tier**: Enforces honest baseline-first modeling, evaluating NSE, KGE, RMSE, and alert metrics across horizons $t+1 \dots t+7$.
+5. **API & Presentation**: Serves standardized JSON contracts with OpenAPI documentation and an intuitive browser dashboard.

@@ -48,6 +48,7 @@ data/raw/*
 !data/raw/.gitkeep
 !data/raw/wq/
 !data/raw/wq/sample_synthetic_wq.csv
+!data/raw/wq/sample_wq_synthetic.csv
 !data/raw/wq/README.md
 data/interim/*
 !data/interim/.gitkeep

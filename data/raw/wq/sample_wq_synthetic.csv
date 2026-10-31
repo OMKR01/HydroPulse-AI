@@ -1,0 +1,7 @@
+station_id,date,ph,dissolved_oxygen_mg_l,bod_mg_l,cod_mg_l,conductivity_us_cm,turbidity_ntu,fecal_coliform_mpn_100ml,provenance
+damodar_ramgarh,2023-01-15,7.4,6.8,2.4,14.5,410.0,4.2,450.0,synthetic
+damodar_ramgarh,2023-02-15,7.6,6.5,2.8,18.0,430.0,5.1,600.0,synthetic
+damodar_bokaro,2023-01-15,7.2,5.9,3.8,25.0,580.0,8.0,1200.0,synthetic
+damodar_dhanbad,2023-01-15,6.9,5.2,4.5,32.0,720.0,12.5,2100.0,synthetic
+subarnarekha_jamshedpur,2023-01-15,7.5,6.4,3.1,20.0,490.0,6.0,850.0,synthetic
+subarnarekha_ghatshila,2023-01-15,7.3,6.1,3.4,22.0,510.0,7.2,950.0,synthetic
