@@ -29,3 +29,10 @@ In strict accordance with the project integrity principles, all assumptions, dat
 
 ## 7. Outlier Management & Imputation
 - Adhering to the non-destructive principle, outlier values are flagged with specific reasons (`negative_rainfall`, `exceeds_physical_max`, `discharge_zscore`) rather than dropped or silently overwritten. Downstream model pipelines must handle flagged records explicitly via robust scalers or loss functions.
+
+## 8. Flood Forecasting Models (Phase 3)
+- **Direct Multi-Horizon Strategy**: Direct models are trained independently for each horizon ($t+1 \dots t+7$). While this prevents recursive error accumulation, predictions between consecutive lead days ($t+2$ vs $t+3$) are not mathematically constrained to be monotonic or hydraulically smooth.
+- **LSTM Data-Hunger**: Deep learning sequence models (LSTM) require large sample sizes. On stations with sparse historical gauges or noisy GloFAS reanalysis, gradient-boosted trees (LightGBM) frequently equal or outperform LSTMs on NSE/KGE metrics.
+- **Quantile Calibration & Monotonicity**: Quantile models use LightGBM pinball loss at $\alpha \in \{0.10, 0.50, 0.90\}$. Monotonicity ($P10 \le P50 \le P90$) is enforced post-hoc via sorting.
+- **Synthetic Data Demarcation**: When real historical gauges are unavailable or during initial smoke testing, synthetic sequences are used with strict `provenance: "synthetic"` tagging. These must be treated as architectural demonstrations rather than ground-truth forecasts.
+
