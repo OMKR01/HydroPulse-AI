@@ -28,5 +28,10 @@ def test_refresh_stub():
 
 def test_train_stub():
     """Verify train main entry point returns 0."""
-    exit_code = train_main()
-    assert exit_code == 0
+    with patch(
+        "src.hydropulse.pipeline.train.run_training",
+        return_value={"status": "mocked"},
+    ):
+        exit_code = train_main([])
+        assert exit_code == 0
+
