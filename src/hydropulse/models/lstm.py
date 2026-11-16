@@ -27,9 +27,18 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-import torch
-import torch.nn as nn
-from torch.utils.data import DataLoader, Dataset
+
+try:
+    import torch
+    import torch.nn as nn
+    from torch.utils.data import DataLoader, Dataset
+    TORCH_AVAILABLE = True
+except (ImportError, OSError):
+    torch = None  # type: ignore
+    nn = None  # type: ignore
+    DataLoader = None  # type: ignore
+    Dataset = object  # type: ignore
+    TORCH_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
