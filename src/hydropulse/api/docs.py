@@ -119,6 +119,33 @@ OPENAPI_SPEC = {
                 },
             }
         },
+        "/api/v1/stations/{id}/history": {
+            "get": {
+                "tags": ["Forecasts"],
+                "summary": "Historical Discharge & Precipitation Time Series",
+                "description": "Retrieve past discharge and weather observations for a given station.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": True,
+                        "schema": {"type": "string"},
+                        "description": "Station identifier",
+                    },
+                    {
+                        "name": "days",
+                        "in": "query",
+                        "schema": {"type": "integer", "default": 30, "maximum": 365, "minimum": 1},
+                        "description": "Number of historical days to return",
+                    },
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Historical time series",
+                    }
+                },
+            }
+        },
         "/api/v1/risk/map": {
             "get": {
                 "tags": ["Alerts & Risk"],

@@ -73,4 +73,19 @@ graph TD
    - `lstm.py`: Per-station seq2seq LSTM and entity-aware multi-station LSTM with learnable station embeddings.
    - `drought.py`: Computes historical $Q_{90}$ low-flow thresholds, flags hydrological deficits, synthesizes multi-scalar SPI into compound drought tiers, and forecasts 30-day outlook trajectories.
    - `wqi.py`: Computes Weighted-Arithmetic WQI (WA-WQI) with dynamic weight re-allocation, evaluates statutory CPCB Designated-Best-Use classes A–E, performs non-parametric Mann-Kendall trend tests and classical seasonal decomposition, flags industrial effluent hotspots, and predicts next-month CPCB classes.
-5. **API & Presentation**: Serves standardized JSON contracts with OpenAPI documentation and an intuitive browser dashboard.
+5. **API Service Layer (`src/hydropulse/api`)**:
+   - `factory.py`: Application factory (`create_app`) configuring environment-specific settings, registering blueprints, middleware hooks, and standard error envelopes.
+   - `middleware.py`:
+     - `InMemoryTTLCache` & `@cached`: Thread-safe in-memory cache with query-aware keying and `X-Cache: HIT | MISS` transparency.
+     - `RateLimiter`: Token bucket / sliding-window rate limiter (default 120 req/min) returning RFC-standard `X-RateLimit-*` headers and HTTP 429 when exhausted.
+     - Request Tracking: Injects UUID4 `X-Request-ID` (or propagates upstream client ID) and high-resolution execution timing via `X-Response-Time-Ms`.
+     - Consistent Error Envelopes: Formatted JSON `{status, error: {code, message, details, request_id}, timestamp}` for 400, 404, 405, 429, and 500.
+   - **Blueprints**:
+     - `blueprints/health.py`: Dynamic health check probe and configuration readiness at `/api/v1/health`.
+     - `blueprints/stations.py`: Station metadata catalogue (`/api/v1/stations`), 1–7 day multi-horizon forecast hydrographs (`/api/v1/stations/<id>/forecast`), and historical observations (`/api/v1/stations/<id>/history`).
+     - `blueprints/risk.py`: Basin-wide GeoJSON FeatureCollection risk map (`/api/v1/risk/map`) and active bilingual flood alerts with SHAP attribution reasons (`/api/v1/alerts`).
+     - `blueprints/river_health.py`: Weighted-Arithmetic WQI, CPCB class, and pollutant profiles (`/api/v1/water-quality/<id>`), and compound SPI + $Q_{90}$ drought stress outlooks (`/api/v1/drought/<id>`).
+     - `blueprints/governance.py`: Machine-readable single source of truth model metrics from `reports/metrics.json` at `/api/v1/model/metrics`.
+   - `docs.py`: Embedded Swagger UI at `/docs` backed by dynamic OpenAPI 3.0 specification at `/api/v1/openapi.json`.
+6. **Presentation Tier (`src/hydropulse/web`)**:
+   - Serves an interactive Leaflet.js geospatial map and Chart.js hydrograph dashboard (plain Jinja/JS, no SPA framework) consuming the Phase 5 API endpoints.
