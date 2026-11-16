@@ -2,7 +2,7 @@ import logging
 from datetime import UTC, datetime
 from typing import Any
 
-from flask import Flask, g, jsonify
+from flask import Flask, g, jsonify, request
 from flask_cors import CORS
 
 from config.settings import settings
@@ -14,6 +14,7 @@ from src.hydropulse.api.blueprints.river_health import river_health_bp
 from src.hydropulse.api.blueprints.stations import stations_bp
 from src.hydropulse.api.docs import docs_bp
 from src.hydropulse.api.middleware import setup_middleware
+from src.hydropulse.web.routes import dashboard, web_bp
 
 
 def configure_logging(app: Flask) -> None:
@@ -106,14 +107,19 @@ def create_app(config_override: dict[str, Any] | None = None) -> Flask:
     app.register_blueprint(river_health_bp)
     app.register_blueprint(governance_bp)
     app.register_blueprint(docs_bp)
+    app.register_blueprint(web_bp)
 
     @app.route("/")
     def index():
-        """Root landing route redirecting to /docs or API information."""
+        """Root landing route: returns dashboard HTML for browsers, JSON for API clients."""
+        accept_header = request.headers.get("Accept", "")
+        if "text/html" in accept_header and "application/json" not in accept_header:
+            return dashboard()
         return jsonify({
             "service": "HydroPulse AI",
             "description": "Jharkhand River Health Monitoring & Early Warning System",
             "version": __version__,
+            "dashboard_url": "/dashboard",
             "docs_url": "/docs",
             "health_url": "/api/v1/health",
             "advisory": (

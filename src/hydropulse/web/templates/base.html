@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="HydroPulse AI — Jharkhand River Health & Flood Early Warning System for Damodar and Subarnarekha Basins.">
+  <meta name="theme-color" content="#0d1b2a">
+  <title>{% block title %}HydroPulse AI — Jharkhand River Monitoring{% endblock %}</title>
+
+  <!-- Typography: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Leaflet 1.9.4 CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+
+  <!-- HydroPulse Custom Accessible Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('web.static', filename='css/dashboard.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="theme-dark">
+  <!-- Accessibility Skip Navigation Link -->
+  <a href="#main-content" class="skip-nav-link">Skip to main content</a>
+
+  <!-- Top Global Header -->
+  <header class="app-header" role="banner">
+    <div class="header-container">
+      <div class="brand-section">
+        <div class="brand-emblem" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+            <path d="M12 12c.5-1 1.5-1.5 2.5-1.5 1.5 0 2.5 1 2.5 2.5 0 1.5-1 2.5-2.5 2.5-.5 0-1.5-.5-2.5-1.5"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1 class="brand-title">
+            <span class="brand-accent">HydroPulse</span> AI
+            <span class="badge-beta">v{{ version }}</span>
+          </h1>
+          <p class="brand-subtitle" id="i18n-subhead">Jharkhand River Health & Flood Early Warning System</p>
+        </div>
+      </div>
+
+      <!-- Live Controls & Status -->
+      <div class="header-actions">
+        <!-- Provenance Badge -->
+        <div id="provenance-badge-container" class="provenance-pill" title="Data Provenance Status">
+          <span class="pulse-dot"></span>
+          <span id="provenance-label">MODEL REANALYSIS</span>
+        </div>
+
+        <!-- Language Switcher -->
+        <button id="lang-toggle-btn" class="control-btn lang-toggle" type="button" aria-label="Switch language between English and Hindi">
+          <span class="lang-en active">EN</span>
+          <span class="lang-divider">/</span>
+          <span class="lang-hi">हिन्दी</span>
+        </button>
+
+        <!-- Live Refresh Trigger -->
+        <button id="refresh-data-btn" class="control-btn refresh-btn" type="button" aria-label="Refresh live monitoring data" title="Refresh Live Data">
+          <svg class="refresh-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          <span class="btn-text" id="i18n-refresh-text">Refresh</span>
+        </button>
+
+        <!-- Navigation Links -->
+        <nav class="header-nav" aria-label="System navigation">
+          <a href="/docs" class="nav-link" target="_blank" rel="noopener">API Docs</a>
+          <a href="/api/v1/model/metrics" class="nav-link" target="_blank" rel="noopener">Metrics</a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Statutory Advisory Disclaimer Banner (Always Visible per Rule 2.7 & 8) -->
+    <div class="disclaimer-banner" role="alert" aria-live="polite">
+      <div class="disclaimer-inner">
+        <span class="disclaimer-icon" aria-hidden="true">⚠️</span>
+        <div class="disclaimer-text">
+          <strong id="i18n-disclaimer-title">STATUTORY ADVISORY:</strong>
+          <span id="i18n-disclaimer-body">
+            HydroPulse AI is an experimental ML research & decision-support system. Official flood warnings, reservoir release advisories, and evacuation notices are issued exclusively by the <strong>Central Water Commission (CWC)</strong> and <strong>Jharkhand State Disaster Management Authority (JSDMA)</strong>.
+          </span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Mount -->
+  <main id="main-content" class="app-main" role="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Accessible Footer -->
+  <footer class="app-footer" role="contentinfo">
+    <div class="footer-container">
+      <div class="footer-meta">
+        <p><strong>HydroPulse AI</strong> &bull; Developed by Om Kumar (MCA, Amity University Jharkhand, Ranchi).</p>
+        <p class="footer-subtext">Monitored Basins: Damodar, Subarnarekha, Konar, Barakar, Kharkai. Verified data integrity: zero data fabrication.</p>
+      </div>
+      <div class="footer-links">
+        <span id="system-clock-display" class="clock-display">UTC: {{ last_updated }}</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Leaflet 1.9.4 JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Chart.js 4.4.1 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Modular HydroPulse Scripts -->
+  <script type="module" src="{{ url_for('web.static', filename='js/app.js') }}"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

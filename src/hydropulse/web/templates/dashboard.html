@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+
+{% block title %}HydroPulse AI — Jharkhand River Monitoring Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+  <!-- Active Alerts Strip / Basin Broadcast -->
+  <section class="alerts-ticker-strip" aria-label="Active Basin Warnings">
+    <div class="ticker-label">
+      <span class="ticker-badge" id="i18n-ticker-badge">ACTIVE ALERTS</span>
+    </div>
+    <div class="ticker-content" id="alerts-ticker-content" tabindex="0">
+      <span class="ticker-loading">Loading basin alert status...</span>
+    </div>
+  </section>
+
+  <!-- Two-Column Primary Layout -->
+  <div class="dashboard-grid">
+    <!-- Left Column: Geospatial River Basin Map -->
+    <section class="map-section" aria-label="Geospatial River Basin Map">
+      <!-- Basin Controls & Filter Pills -->
+      <div class="map-toolbar">
+        <div class="basin-filter-group" role="radiogroup" aria-label="Filter stations by river basin">
+          <button type="button" class="basin-pill active" data-basin="all" aria-checked="true" role="radio">
+            <span id="i18n-filter-all">All Basins</span>
+          </button>
+          <button type="button" class="basin-pill" data-basin="Damodar" aria-checked="false" role="radio">
+            <span>Damodar Basin</span>
+          </button>
+          <button type="button" class="basin-pill" data-basin="Subarnarekha" aria-checked="false" role="radio">
+            <span>Subarnarekha Basin</span>
+          </button>
+        </div>
+
+        <div class="station-counters" aria-label="Network Risk Summary">
+          <span class="counter-badge counter-normal" title="Normal Level">
+            <span class="counter-symbol">●</span> <span id="count-normal">0</span>
+          </span>
+          <span class="counter-badge counter-watch" title="Watch Level">
+            <span class="counter-symbol">■</span> <span id="count-watch">0</span>
+          </span>
+          <span class="counter-badge counter-warning" title="Warning Level">
+            <span class="counter-symbol">▲</span> <span id="count-warning">0</span>
+          </span>
+          <span class="counter-badge counter-danger" title="Danger Level">
+            <span class="counter-symbol">◆</span> <span id="count-danger">0</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Leaflet Map Mount Point -->
+      <div id="map-viewport" class="map-viewport" role="region" aria-label="Interactive Leaflet Map"></div>
+
+      <!-- Accessible Color-Blind Legend Overlay -->
+      <div class="map-legend" role="region" aria-label="Map Legend">
+        <h2 class="legend-title" id="i18n-legend-title">Risk Level Legend</h2>
+        <ul class="legend-list">
+          <li class="legend-item">
+            <span class="legend-icon icon-normal" aria-hidden="true">●</span>
+            <span class="legend-text" id="i18n-legend-normal">Normal (Q &lt; P90)</span>
+          </li>
+          <li class="legend-item">
+            <span class="legend-icon icon-watch" aria-hidden="true">■</span>
+            <span class="legend-text" id="i18n-legend-watch">Watch (P90 &le; Q &lt; P95)</span>
+          </li>
+          <li class="legend-item">
+            <span class="legend-icon icon-warning" aria-hidden="true">▲</span>
+            <span class="legend-text" id="i18n-legend-warning">Warning (P95 &le; Q &lt; P99)</span>
+          </li>
+          <li class="legend-item">
+            <span class="legend-icon icon-danger" aria-hidden="true">◆</span>
+            <span class="legend-text" id="i18n-legend-danger">Danger (Q &ge; P99)</span>
+          </li>
+        </ul>
+        <p class="legend-note">*Shapes &amp; text designed for high-contrast color-blind accessibility.</p>
+      </div>
+    </section>
+
+    <!-- Right Column: Station Intelligence Detail Panel -->
+    <aside class="station-panel" aria-label="Selected Station Intelligence Detail">
+      <!-- Station Header Card -->
+      <div class="station-card-header">
+        <div class="station-title-block">
+          <span class="station-river-tag" id="detail-basin-river">Damodar Basin &bull; Damodar River</span>
+          <h2 class="station-name-title" id="detail-station-name">Select a Station</h2>
+          <div class="station-geo-meta">
+            <span id="detail-coords">Lat: -- &bull; Lon: --</span>
+            <span class="status-unverified-tag" id="detail-verified-tag" title="Candidate gauge under observation">
+              Candidate Gauge (Verified: False)
+            </span>
+          </div>
+        </div>
+
+        <div class="station-alert-badge" id="detail-risk-badge">
+          <span class="risk-symbol" id="detail-risk-symbol">●</span>
+          <span class="risk-name" id="detail-risk-name">NORMAL</span>
+        </div>
+      </div>
+
+      <!-- Bilingual Alert & Explainability Box -->
+      <div class="alert-narrative-card" id="narrative-card">
+        <div class="narrative-header">
+          <span class="narrative-icon">📢</span>
+          <h3 class="narrative-heading" id="i18n-narrative-heading">Early Warning Status</h3>
+        </div>
+        <p class="narrative-text" id="detail-alert-text">
+          River discharge within seasonal baseline conditions. No immediate flood risk detected.
+        </p>
+
+        <!-- Explainability / "Why is this station red?" Section -->
+        <div class="explainability-block" id="explainability-block">
+          <h4 class="explain-title" id="i18n-why-title">Why is this station at this level?</h4>
+          <ul class="explain-factors-list" id="detail-explain-factors">
+            <li>Historical seasonal baseline flows observed across the catchment.</li>
+            <li>No significant 48h antecedent precipitation surge detected.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Station Detail Navigation Tabs -->
+      <div class="panel-tabs" role="tablist" aria-label="Station views">
+        <button type="button" class="panel-tab active" id="tab-btn-forecast" role="tab" aria-selected="true" aria-controls="tab-pane-forecast">
+          <span id="i18n-tab-forecast">Flood Forecast (7-Day)</span>
+        </button>
+        <button type="button" class="panel-tab" id="tab-btn-health" role="tab" aria-selected="false" aria-controls="tab-pane-health">
+          <span id="i18n-tab-health">River Health (WQI)</span>
+        </button>
+        <button type="button" class="panel-tab" id="tab-btn-drought" role="tab" aria-selected="false" aria-controls="tab-pane-drought">
+          <span id="i18n-tab-drought">Drought &amp; Low-Flow</span>
+        </button>
+      </div>
+
+      <!-- TAB 1: Flood Hydrograph & Uncertainty Band -->
+      <div class="tab-pane active" id="tab-pane-forecast" role="tabpanel" aria-labelledby="tab-btn-forecast">
+        <div class="hydrograph-container">
+          <div class="chart-header">
+            <h4 class="chart-title" id="i18n-hydrograph-title">Discharge Hydrograph &amp; 7-Day Forecast Band</h4>
+            <span class="chart-units">m&sup3;/s</span>
+          </div>
+          <div class="chart-canvas-wrapper">
+            <canvas id="hydrograph-canvas" aria-label="Station Hydrograph Forecast Chart" role="img"></canvas>
+          </div>
+          <div class="hydrograph-legend-strip">
+            <span class="hydro-leg-item"><span class="leg-color-box leg-obs"></span> <span id="i18n-leg-history">Observed / Model (14d)</span></span>
+            <span class="hydro-leg-item"><span class="leg-color-box leg-p50"></span> <span id="i18n-leg-p50">Forecast (P50)</span></span>
+            <span class="hydro-leg-item"><span class="leg-color-box leg-band"></span> <span id="i18n-leg-band">Uncertainty Band (P10–P90)</span></span>
+            <span class="hydro-leg-item"><span class="leg-color-box leg-warn"></span> <span>Warning Level</span></span>
+            <span class="hydro-leg-item"><span class="leg-color-box leg-dang"></span> <span>Danger Level</span></span>
+          </div>
+        </div>
+
+        <div class="forecast-metrics-grid">
+          <div class="metric-card">
+            <span class="metric-label" id="i18n-peak-label">Peak Forecast</span>
+            <span class="metric-value" id="metric-peak-q">-- m&sup3;/s</span>
+            <span class="metric-sub" id="metric-peak-day">Lead Day --</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label" id="i18n-p90-label">90th Percentile Peak</span>
+            <span class="metric-value" id="metric-p90-peak">-- m&sup3;/s</span>
+            <span class="metric-sub">Upper bound</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Warning Threshold</span>
+            <span class="metric-value" id="metric-threshold-warning">-- m&sup3;/s</span>
+            <span class="metric-sub">P95 Historical</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Danger Threshold</span>
+            <span class="metric-value" id="metric-threshold-danger">-- m&sup3;/s</span>
+            <span class="metric-sub">P99 Historical</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: River Health & Water Quality Index -->
+      <div class="tab-pane" id="tab-pane-health" role="tabpanel" aria-labelledby="tab-btn-health" hidden>
+        <div class="wqi-summary-block">
+          <div class="wqi-score-card">
+            <span class="wqi-sublabel" id="i18n-wqi-title">Weighted-Arithmetic WQI</span>
+            <div class="wqi-value-display">
+              <span class="wqi-score" id="wqi-score-value">--</span>
+              <span class="wqi-scale">/100</span>
+            </div>
+            <span class="wqi-status-badge" id="wqi-status-badge">Calculating...</span>
+          </div>
+
+          <div class="cpcb-class-card">
+            <span class="cpcb-sublabel">CPCB Designated-Best-Use</span>
+            <div class="cpcb-class-display">
+              <span class="cpcb-class-letter" id="cpcb-class-letter">--</span>
+            </div>
+            <p class="cpcb-desc" id="cpcb-class-desc">Statutory criteria evaluated per CPCB standards.</p>
+          </div>
+        </div>
+
+        <!-- Industrial Corridor Hotspot Alert -->
+        <div class="hotspot-banner" id="hotspot-alert-banner" hidden>
+          <span class="hotspot-icon">🏭</span>
+          <div class="hotspot-text">
+            <strong>Bokaro–Dhanbad Industrial Hotspot Alert</strong>
+            <p id="hotspot-alert-reason">Elevated effluent discharge detected in coal/industrial corridor.</p>
+          </div>
+        </div>
+
+        <!-- Water Quality Parameter Grid -->
+        <div class="wq-params-section">
+          <h4 class="params-title" id="i18n-wq-params-title">Parameter Readings (mg/L except pH/Cond)</h4>
+          <div class="params-grid">
+            <div class="param-card">
+              <span class="param-name">pH</span>
+              <span class="param-val" id="wq-param-ph">--</span>
+              <span class="param-std">Std: 6.5–8.5</span>
+            </div>
+            <div class="param-card">
+              <span class="param-name">Dissolved Oxygen</span>
+              <span class="param-val" id="wq-param-do">-- mg/L</span>
+              <span class="param-std">Std: &ge; 4.0 mg/L</span>
+            </div>
+            <div class="param-card">
+              <span class="param-name">Biochemical Oxygen (BOD)</span>
+              <span class="param-val" id="wq-param-bod">-- mg/L</span>
+              <span class="param-std">Std: &le; 3.0 mg/L</span>
+            </div>
+            <div class="param-card">
+              <span class="param-name">Chemical Oxygen (COD)</span>
+              <span class="param-val" id="wq-param-cod">-- mg/L</span>
+              <span class="param-std">Std: &le; 250 mg/L</span>
+            </div>
+            <div class="param-card">
+              <span class="param-name">Conductivity</span>
+              <span class="param-val" id="wq-param-cond">-- &mu;S/cm</span>
+              <span class="param-std">Std: &le; 2250</span>
+            </div>
+            <div class="param-card">
+              <span class="param-name">Turbidity</span>
+              <span class="param-val" id="wq-param-turb">-- NTU</span>
+              <span class="param-std">Std: &le; 10</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: Drought & Hydrological Low-Flow Stress -->
+      <div class="tab-pane" id="tab-pane-drought" role="tabpanel" aria-labelledby="tab-btn-drought" hidden>
+        <div class="drought-overview-card">
+          <div class="drought-header-row">
+            <span class="drought-status-title" id="i18n-drought-status-title">Compound Drought Severity</span>
+            <span class="drought-severity-pill" id="drought-severity-badge">NORMAL</span>
+          </div>
+          <p class="drought-summary-text" id="drought-summary-desc">
+            Rainfall accumulations and river baseflow are currently tracking seasonal normals.
+          </p>
+        </div>
+
+        <!-- SPI Multi-Scalar Index Section -->
+        <div class="spi-section">
+          <h4 class="spi-title">Standardized Precipitation Index (SPI)</h4>
+          <div class="spi-bars-container">
+            <div class="spi-row">
+              <span class="spi-scale-label">SPI-1 (30d):</span>
+              <div class="spi-bar-track">
+                <div class="spi-bar-fill" id="spi-1-fill" style="width: 50%;"></div>
+              </div>
+              <span class="spi-val" id="spi-1-val">0.00</span>
+            </div>
+            <div class="spi-row">
+              <span class="spi-scale-label">SPI-3 (90d):</span>
+              <div class="spi-bar-track">
+                <div class="spi-bar-fill" id="spi-3-fill" style="width: 50%;"></div>
+              </div>
+              <span class="spi-val" id="spi-3-val">0.00</span>
+            </div>
+            <div class="spi-row">
+              <span class="spi-scale-label">SPI-6 (180d):</span>
+              <div class="spi-bar-track">
+                <div class="spi-bar-fill" id="spi-6-fill" style="width: 50%;"></div>
+              </div>
+              <span class="spi-val" id="spi-6-val">0.00</span>
+            </div>
+          </div>
+          <span class="spi-footer-note">&le; -1.0: Moderate Drought &bull; &le; -1.5: Severe &bull; &le; -2.0: Extreme</span>
+        </div>
+
+        <!-- Hydrological Low-Flow Q90 Status -->
+        <div class="q90-stress-card">
+          <div class="q90-header">
+            <span class="q90-label">Hydrological Baseflow Deficit (Q90)</span>
+            <span class="q90-badge" id="q90-status-badge">No Stress</span>
+          </div>
+          <div class="q90-details">
+            <div class="q90-detail-item">
+              <span class="item-label">Current Discharge:</span>
+              <span class="item-val" id="q90-current-discharge">-- m&sup3;/s</span>
+            </div>
+            <div class="q90-detail-item">
+              <span class="item-label">Historical Q90 Low-Flow Threshold:</span>
+              <span class="item-val" id="q90-threshold-val">-- m&sup3;/s</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 30-Day Forward Drought Outlook -->
+        <div class="drought-outlook-box">
+          <h4 class="outlook-title" id="i18n-outlook-title">30-Day Forward Trajectory</h4>
+          <div class="outlook-indicator" id="drought-outlook-indicator">
+            <span class="outlook-arrow" id="drought-outlook-arrow">&rarr;</span>
+            <span class="outlook-badge" id="drought-outlook-badge">PERSISTENT</span>
+          </div>
+          <p class="outlook-text" id="drought-outlook-narrative">
+            Current flow rates and medium-range forecast indicate stable hydrologic conditions.
+          </p>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+{% endblock %}

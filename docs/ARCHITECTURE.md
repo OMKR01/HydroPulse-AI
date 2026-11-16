@@ -88,4 +88,16 @@ graph TD
      - `blueprints/governance.py`: Machine-readable single source of truth model metrics from `reports/metrics.json` at `/api/v1/model/metrics`.
    - `docs.py`: Embedded Swagger UI at `/docs` backed by dynamic OpenAPI 3.0 specification at `/api/v1/openapi.json`.
 6. **Presentation Tier (`src/hydropulse/web`)**:
-   - Serves an interactive Leaflet.js geospatial map and Chart.js hydrograph dashboard (plain Jinja/JS, no SPA framework) consuming the Phase 5 API endpoints.
+   - `routes.py`: Flask blueprint serving `/dashboard` (and `/` for browser agents).
+   - `templates/`:
+     - `base.html`: Semantic HTML5 document shell, accessibility skip links, Leaflet 1.9.4 & Chart.js 4.4.1 dependencies, permanent CWC/JSDMA statutory disclaimer banner, live provenance pills, and bilingual toggle.
+     - `dashboard.html`: Responsive two-column layout mounting geospatial basin map, active alerts ticker strip, station risk cards, hydrograph canvas, WQI panel, and drought outlook widgets.
+   - `static/css/dashboard.css`: WCAG AAA accessible high-contrast design system, dark river canvas theme, keyboard focus indicators, and double-encoded color-blind safe palettes (shape + color + text).
+   - `static/js/`:
+     - `api_client.js`: Asynchronous fetch wrapper handling latency tracking and error envelopes.
+     - `state.js`: Central state store for active station, language (`en`/`hi`), and basin filters.
+     - `map_view.js`: Leaflet map controller managing custom SVG station markers (● Circle, ■ Square, ▲ Triangle, ◆ Octagon) and pulsing warning indicators.
+     - `hydrograph.js`: Chart.js time-series hydrograph plotting 14-day history, P50 forecast, shaded P10–P90 uncertainty confidence intervals, and CWC warning/danger thresholds.
+     - `health_view.js`: Weighted-Arithmetic WQI gauge, statutory CPCB Designated-Best-Use classes A–E, and industrial effluent hotspot indicators.
+     - `drought_view.js`: Multi-scalar SPI-1/3/6 progress bars, $Q_{90}$ low-flow status, and 30-day forward outlook trajectory.
+     - `app.js`: Master application coordinator handling bilingual dictionaries, event wiring, and 60-second live polling.

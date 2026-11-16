@@ -227,4 +227,36 @@ Smoke tests running 450 requests across all 9 endpoints demonstrate low-latency 
 - **95th Percentile (p95) Latency**: $4.25\text{ ms}$ (well below the $300\text{ ms}$ SLA threshold)
 - **Maximum Latency**: $15.24\text{ ms}$
 
+---
+
+## 11. Phase 6 — Interactive Dashboard (Leaflet.js + Chart.js)
+Phase 6 delivers a clean, responsive, and accessible web dashboard built strictly in plain Jinja2 templates and vanilla JavaScript (no frontend SPA framework), consuming the Phase 5 backend REST APIs.
+
+### Key Capabilities
+- **Geospatial Basin Map (`/dashboard`)**:
+  - Interactive Leaflet.js map centered over Jharkhand's river systems (Damodar, Subarnarekha, Konar, Barakar, Kharkai).
+  - Stations marked with **color-blind safe shapes and colors** (● Normal in Green, ■ Watch in Amber, ▲ Warning in Vermilion, ◆ Danger in Purple).
+  - Pulsing radar rings on markers with active flood warnings.
+  - Basin filter pills (All Basins, Damodar, Subarnarekha) and real-time station risk counter badges.
+- **7-Day Discharge Hydrograph & Uncertainty Band**:
+  - Chart.js time-series combining 14-day observed history, 1–7 day P50 forecast trajectory, and shaded P10–P90 calibrated uncertainty confidence intervals.
+  - CWC Warning and Danger threshold benchmark lines.
+- **River Health & Water Quality Panel**:
+  - Weighted-Arithmetic WQI gauge (0–100+ scale).
+  - Statutory CPCB Designated-Best-Use classification badges (Classes A, B, C, D, E, Below E).
+  - Parameter breakdown grid (pH, DO, BOD, COD, Conductivity, Turbidity).
+  - Dedicated industrial corridor effluent hotspot alerts for the Bokaro–Dhanbad mining belt.
+- **Drought & Hydrological Low-Flow Stress**:
+  - Multi-scalar SPI bars (SPI-1, SPI-3, SPI-6) normalized against drought classification boundaries.
+  - Hydrological baseflow deficit monitoring against station-specific $Q_{90}$ thresholds.
+  - 30-day forward drought outlook trajectories (Improving, Persistent, Deteriorating).
+- **Bilingual Alert Engine & Explainability**:
+  - Instant one-click English/Hindi language toggle (`EN | हिन्दी`) dynamically translating all alerts, labels, and explanations.
+  - "Why is this station in alert?" explainability card driven by top SHAP attributions.
+- **Governance & Compliance**:
+  - Permanent statutory CWC/JSDMA advisory disclaimer banner.
+  - Dynamic provenance badge (`OBSERVED`, `MODEL REANALYSIS`, `FORECAST`, `SYNTHETIC [DEMO DATA]`).
+  - High-contrast accessible styling (WCAG AAA focus rings, skip-to-content links, keyboard navigation).
+
+
 

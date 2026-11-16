@@ -47,4 +47,10 @@ In strict accordance with the project integrity principles, all assumptions, dat
 - **Process-Local Rate Limiting**: The sliding-window rate limiter tracks client IP buckets in local memory. In multi-instance cluster configurations, requests distributed behind a round-robin load balancer will track separate quotas unless backed by a distributed key-value store.
 - **Bilingual Alert Generation**: English and Hindi warning statements are synthesized via deterministic rule-based hydrologic templates conforming to official Indian terminology. While grammatically validated and free of hallucination, non-templated freeform notifications should be reviewed by local disaster management officers.
 
+## 11. Presentation Tier & Browser Environment (Phase 6)
+- **External Map Tile Connectivity**: The Leaflet map component fetches basemap raster tiles from public tile providers (CartoDB / OpenStreetMap). While station coordinates, risk classifications, and GeoJSON shapes render locally from the API, fully air-gapped or disconnected deployments require a local tile cache (e.g. MBTiles server).
+- **Client-Side JavaScript Rendering**: The dashboard is a progressively enhanced plain Jinja/JavaScript web interface. Interactive geospatial zooming, SVG marker rendering, and Chart.js hydrographs require JavaScript execution in the browser.
+- **Client Hardware Acceleration**: While Chart.js and SVG vectors are optimized for high frame rates, rendering long historical series (> 90 days) on low-power mobile devices may experience slight canvas rendering delays; the UI defaults to a 14-day history view to ensure smooth interactivity.
+
+
 
