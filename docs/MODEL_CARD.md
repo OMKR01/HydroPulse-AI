@@ -160,13 +160,40 @@ several stations have overlapping monsoon dynamics.
 
 ---
 
+## Phase 4: Drought & River Health Models
+
+### 1. Drought & Low-Flow Stress Models (`src/hydropulse/models/drought.py`)
+- **Low-Flow Threshold ($Q_{90}$)**:
+  - Formulated as the 10th percentile of historic river flow (90% exceedance probability).
+  - Fitted strictly on historical reference periods to eliminate future leakage.
+  - Generates low-flow stress flags ($Q_t < Q_{90}$).
+- **Combined Meteorological & Hydrological Drought Status**:
+  - Synthesizes multi-scalar Standardized Precipitation Indices (SPI-30d, 90d, 180d) with instantaneous low-flow stress into 5 severity tiers: *Normal, Watch, Moderate, Severe, Extreme*.
+- **30-Day Forward Drought Outlook**:
+  - Merges 7-day numerical weather predictions with climatological monthly normal rainfall.
+  - Projects precipitation deficit percentages and forecasted low-flow day counts to determine forward trajectory (*Improving, Persistent Low Flow, Deteriorating, Normal*).
+
+### 2. Water Quality Health Models (`src/hydropulse/models/wqi.py`)
+- **Weighted-Arithmetic Water Quality Index (WA-WQI)**:
+  - Implements Brown et al. (1972) formulation for surface inland waters across 7 physico-chemical contaminants (pH, DO, BOD, COD, EC, Turbidity, Fecal Coliform).
+  - Dynamically recalculates proportionality constant $K$ and normalizes unit weights $W_n$ over available non-null parameters ($\sum W_n = 1.0$).
+- **CPCB Designated-Best-Use Classification**:
+  - Deterministic compliance engine grading waters into official CPCB Classes A, B, C, D, E, or Below_E based on statutory water quality criteria (`https://cpcb.nic.in/water-quality-criteria/`).
+- **Non-Parametric Trend Testing & Seasonal Decomposition**:
+  - *Mann-Kendall Test*: Computes Kendall's $S$, tie-corrected variance, standardized $Z$, two-tailed $p$-value, and Sen's slope estimator without assuming normal distributions.
+  - *Classical Seasonal Decomposition*: Extracts 12-month centered moving average trends, cyclical monthly seasonal factors, and residual shocks.
+- **Next-Month WQI Class Predictive Classifier**:
+  - Random Forest classifier predicting next-month CPCB class using calendar seasonality and antecedent water quality indicators, fitted on training splits with train-only scaling.
+
+---
+
 ## Where This Model Should NOT Be Trusted
 
 - **Emergency flood evacuation decisions** — always follow CWC / Jharkhand SDMA official warnings.
 - **Sub-daily flood routing.**
 - **Stations outside the 10 configured monitoring points** — model has no spatial generalisation.
 - **Post-dam-failure scenarios.**
-- **Water-quality predictions** — handled separately in Phase 4 (WQI model).
+- **Sub-monthly chemical spill tracking** — monthly water quality monitoring data cannot detect transient pulse-contamination events.
 
 ---
 

@@ -66,5 +66,11 @@ graph TD
    - `spi.py`: Computes Standardized Precipitation Indices (SPI-1/3/6) via 2-parameter Gamma distribution (Thom MLE closed-form expanding window or reference period fitting).
    - `static_attrs.py`: Injects physiographic catchment attributes (elevation, drainage area, slope, stream order, land cover) for entity-aware multi-station learning.
    - `builder.py`: Integrates SQLite raw records, executes feature derivation, and exports per-station Parquet datasets into `data/processed/`.
-4. **Model Tier**: Enforces honest baseline-first modeling, evaluating NSE, KGE, RMSE, and alert metrics across horizons $t+1 \dots t+7$.
+4. **Model Tier (`src/hydropulse/models`)**:
+   - `baselines.py`: Persistence, daily climatology, and regularised Ridge forecasters.
+   - `lgbm.py`: Direct multi-horizon LightGBM with hybrid residual GloFAS learning and SHAP TreeExplainer attributions.
+   - `quantile.py`: Pinball loss quantile forecaster producing calibrated P10, P50, and P90 uncertainty bands.
+   - `lstm.py`: Per-station seq2seq LSTM and entity-aware multi-station LSTM with learnable station embeddings.
+   - `drought.py`: Computes historical $Q_{90}$ low-flow thresholds, flags hydrological deficits, synthesizes multi-scalar SPI into compound drought tiers, and forecasts 30-day outlook trajectories.
+   - `wqi.py`: Computes Weighted-Arithmetic WQI (WA-WQI) with dynamic weight re-allocation, evaluates statutory CPCB Designated-Best-Use classes A–E, performs non-parametric Mann-Kendall trend tests and classical seasonal decomposition, flags industrial effluent hotspots, and predicts next-month CPCB classes.
 5. **API & Presentation**: Serves standardized JSON contracts with OpenAPI documentation and an intuitive browser dashboard.

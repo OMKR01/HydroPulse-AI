@@ -176,3 +176,22 @@ Artifacts generated:
 - Markdown comparison table: `reports/model_comparison.md`
 - Hydrograph and SHAP plots: `reports/plots/`
 
+---
+
+## 9. Phase 4 — Drought & River Health Monitoring
+Phase 4 completes the comprehensive "river health" evaluation engine:
+- **Drought & Low-Flow Tracking** (`src/hydropulse/models/drought.py`):
+  - Computes station-specific $Q_{90}$ low-flow thresholds (10th percentile historic discharge).
+  - Evaluates coupled meteorological and hydrological drought severity tiers (*Normal, Watch, Moderate, Severe, Extreme*).
+  - Generates 30-day forward drought outlooks merging numerical weather predictions with climatology.
+- **Water Quality Health Scoring** (`src/hydropulse/models/wqi.py`):
+  - Weighted-Arithmetic Water Quality Index (WA-WQI; Brown et al., 1972) with dynamic re-weighting.
+  - Statutory CPCB Designated-Best-Use classification (Classes A, B, C, D, E, Below_E) citing [CPCB Criteria](https://cpcb.nic.in/water-quality-criteria/).
+- **Seasonal Decomposition & Mann-Kendall Trends**:
+  - Non-parametric Mann-Kendall tests with Sen's slope and tie-corrected variance across stations.
+  - Classical 12-month seasonal decomposition for DO and BOD showing monsoon dilution vs lean-flow concentration.
+- **Industrial Hotspot Screening & Predictive Modeling**:
+  - Screen Bokaro–Dhanbad mining/industrial corridor for hypoxia, high BOD, chemical COD, and electrical conductivity violations (demarcated as `[INDICATIVE]` when synthetic data is used).
+  - Leak-free Random Forest predictive classifier forecasting next-month CPCB river health class.
+- **Exploratory Analysis Notebook**: Full top-to-bottom executable notebook at [`notebooks/02_drought_wqi.ipynb`](notebooks/02_drought_wqi.ipynb).
+

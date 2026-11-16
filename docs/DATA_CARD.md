@@ -43,6 +43,7 @@ Every record stored, processed, and served by HydroPulse AI carries an explicit 
 
 ### D. Central Pollution Control Board (CPCB) NWMP / JSPCB
 - **Portal**: [https://cpcb.nic.in/water-quality-data/](https://cpcb.nic.in/water-quality-data/)
+- **Official Criteria Documentation**: [https://cpcb.nic.in/water-quality-criteria/](https://cpcb.nic.in/water-quality-criteria/)
 - **Directory**: `data/raw/wq/`
 - **Parameters & Physical Boundaries**:
   - `ph`: [0.0, 14.0]
@@ -53,6 +54,44 @@ Every record stored, processed, and served by HydroPulse AI carries an explicit 
   - `turbidity_ntu`: [0.0, 10000.0] NTU
   - `fecal_coliform_mpn_100ml`: ≥ 0 MPN/100mL
 - **Validation**: Enforced via Pydantic model (`CPCBWaterQualityItem`) upon ingestion. Malformed rows trigger audit rejection.
+
+#### Official CPCB Designated-Best-Use Water Quality Criteria
+| Class | Designated Best Use | pH | Dissolved Oxygen (DO) | Biochemical Oxygen Demand (BOD) | Total / Fecal Coliform | Electrical Conductivity (EC) |
+|---|---|---|---|---|---|---|
+| **Class A** | Drinking water source without conventional treatment but after disinfection | 6.5 – 8.5 | $\ge 6.0\text{ mg/L}$ | $\le 2.0\text{ mg/L}$ | $\le 50\text{ MPN/100mL}$ | — |
+| **Class B** | Outdoor bathing (organized swimming) | 6.5 – 8.5 | $\ge 5.0\text{ mg/L}$ | $\le 3.0\text{ mg/L}$ | $\le 500\text{ MPN/100mL}$ | — |
+| **Class C** | Drinking water source after conventional treatment and disinfection | 6.5 – 9.0 | $\ge 4.0\text{ mg/L}$ | $\le 3.0\text{ mg/L}$ | $\le 5000\text{ MPN/100mL}$ | — |
+| **Class D** | Propagation of wildlife and fisheries | 6.5 – 8.5 | $\ge 4.0\text{ mg/L}$ | — | — | — |
+| **Class E** | Irrigation, industrial cooling, controlled waste disposal | 6.0 – 8.5 | — | — | — | $\le 2250\text{ }\mu\text{S/cm}$ |
+| **Below E** | Not fit for designated uses (heavy pollution / toxic load) | $< 6.0$ or $> 8.5$ | $< 4.0\text{ mg/L}$ | $> 3.0\text{ mg/L}$ | $> 5000\text{ MPN/100mL}$ | $> 2250\text{ }\mu\text{S/cm}$ |
+
+#### Weighted-Arithmetic Water Quality Index (WA-WQI; Brown et al., 1972)
+The aggregate WQI maps multiple physico-chemical contaminants into an integrated unit index:
+$$\text{WQI} = \frac{\sum_{i=1}^n W_i q_i}{\sum_{i=1}^n W_i}$$
+where quality sub-indices $q_i = 100 \times \left|\frac{V_i - V_{\text{ideal}}}{S_i - V_{\text{ideal}}}\right|$ and unit weights $W_i = \frac{K}{S_i}$ with $K = \frac{1}{\sum (1/S_i)}$.
+- **Standard Limits ($S_i$) & Ideals ($V_{\text{ideal}}$)**:
+  - $\text{pH}$: $S_i = 8.5$, $V_{\text{ideal}} = 7.0$
+  - $\text{DO}$: $S_i = 5.0\text{ mg/L}$, $V_{\text{ideal}} = 14.6\text{ mg/L}$
+  - $\text{BOD}$: $S_i = 5.0\text{ mg/L}$, $V_{\text{ideal}} = 0.0$
+  - $\text{COD}$: $S_i = 50.0\text{ mg/L}$, $V_{\text{ideal}} = 0.0$
+  - $\text{Conductivity}$: $S_i = 1000.0\text{ }\mu\text{S/cm}$, $V_{\text{ideal}} = 0.0$
+  - $\text{Turbidity}$: $S_i = 10.0\text{ NTU}$, $V_{\text{ideal}} = 0.0$
+  - $\text{Fecal Coliform}$: $S_i = 500.0\text{ MPN/100mL}$, $V_{\text{ideal}} = 0.0$
+- **WQI Rating Bands**:
+  - $0\text{--}25$: Excellent (Grade A)
+  - $26\text{--}50$: Good (Grade B)
+  - $51\text{--}75$: Poor (Grade C)
+  - $76\text{--}100$: Very Poor (Grade D)
+  - $> 100$: Unfit for Drinking (Grade E / Below E)
+
+#### Mining & Industrial Hotspot Screening (Bokaro–Dhanbad Stretch)
+Screening triggers on industrial effluent indicators:
+- Hypoxia: $\text{DO} < 4.0\text{ mg/L}$
+- Excessive Organic Pollution: $\text{BOD} > 5.0\text{ mg/L}$
+- Industrial Chemical Effluent: $\text{COD} > 50.0\text{ mg/L}$
+- Salinity / Heavy Mineral Runoff: $\text{Conductivity} > 1500.0\text{ }\mu\text{S/cm}$
+- Severe Fecal Contamination: $\text{Fecal Coliform} > 2500.0\text{ MPN/100mL}$
+*Provenance Notice:* Marked strictly as `indicative` unless real ground observations from CPCB/JSPCB are confirmed.
 
 ---
 

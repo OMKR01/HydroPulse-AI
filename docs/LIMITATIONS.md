@@ -36,3 +36,9 @@ In strict accordance with the project integrity principles, all assumptions, dat
 - **Quantile Calibration & Monotonicity**: Quantile models use LightGBM pinball loss at $\alpha \in \{0.10, 0.50, 0.90\}$. Monotonicity ($P10 \le P50 \le P90$) is enforced post-hoc via sorting.
 - **Synthetic Data Demarcation**: When real historical gauges are unavailable or during initial smoke testing, synthetic sequences are used with strict `provenance: "synthetic"` tagging. These must be treated as architectural demonstrations rather than ground-truth forecasts.
 
+## 9. Drought & River Health Monitoring (Phase 4)
+- **Baseflow Bias in GloFAS Reanalysis**: Gridded global hydrological models often exhibit low-flow bias in small, uncalibrated headwater catchments (e.g., upper Subarnarekha). The $Q_{90}$ threshold derived from GloFAS represents model reanalysis exceedance rather than physical gauge low-flow until local bias-correction is applied.
+- **Monthly Water Quality Temporal Resolution**: CPCB NWMP data is collected once per month. Short-lived pulse contamination events (e.g. episodic toxic mine discharge, flash storm overflows) can pass unrecorded between sampling dates.
+- **Indicative Hotspot Screening**: Pollution hotspot flags in the Bokaro–Dhanbad industrial stretch are screening-level alerts based on threshold exceedance (DO, BOD, COD, EC). Per AGENTS.md rules, they carry an explicit `indicative` provenance label unless verified against ground laboratory records.
+- **Dynamic Reweighting in WQI**: While the WA-WQI dynamically normalizes weights over available non-null parameters, records missing both DO and BOD cannot produce a representative biological health score and are flagged accordingly.
+
