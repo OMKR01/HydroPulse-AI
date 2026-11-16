@@ -42,3 +42,9 @@ In strict accordance with the project integrity principles, all assumptions, dat
 - **Indicative Hotspot Screening**: Pollution hotspot flags in the Bokaro–Dhanbad industrial stretch are screening-level alerts based on threshold exceedance (DO, BOD, COD, EC). Per AGENTS.md rules, they carry an explicit `indicative` provenance label unless verified against ground laboratory records.
 - **Dynamic Reweighting in WQI**: While the WA-WQI dynamically normalizes weights over available non-null parameters, records missing both DO and BOD cannot produce a representative biological health score and are flagged accordingly.
 
+## 10. API & Serving Tier (Phase 5)
+- **Local In-Memory Cache**: The Phase 5 API employs a high-performance in-memory TTL cache (`InMemoryTTLCache`). While optimal for single-process deployments and fast local latency (< 5 ms), horizontal scaling across multiple container replicas requires a shared caching layer (e.g. Redis).
+- **Process-Local Rate Limiting**: The sliding-window rate limiter tracks client IP buckets in local memory. In multi-instance cluster configurations, requests distributed behind a round-robin load balancer will track separate quotas unless backed by a distributed key-value store.
+- **Bilingual Alert Generation**: English and Hindi warning statements are synthesized via deterministic rule-based hydrologic templates conforming to official Indian terminology. While grammatically validated and free of hallucination, non-templated freeform notifications should be reviewed by local disaster management officers.
+
+
