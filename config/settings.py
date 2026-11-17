@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     )
     openmeteo_timeout_seconds: int = int(os.getenv("OPENMETEO_TIMEOUT_SECONDS", "15"))
     requests_cache_expire_after: int = int(os.getenv("REQUESTS_CACHE_EXPIRE_AFTER", "21600"))
+    cors_origins: str = os.getenv("CORS_ORIGINS", "*")
+    rate_limit_per_minute: int = int(os.getenv("RATE_LIMIT_PER_MINUTE", "60"))
+    cache_ttl_seconds: int = int(os.getenv("CACHE_TTL_SECONDS", "300"))
+    log_level: str = os.getenv("LOG_LEVEL", "INFO")
 
     class Config:
         env_file = ".env"

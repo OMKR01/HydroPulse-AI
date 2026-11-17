@@ -221,6 +221,52 @@ def start_background_scheduler(interval_hours: int = 6):
     return scheduler
 
 
+def start_blocking_scheduler(interval_hours: int = 6, limit_stations: int | None = 5):
+    """Start an APScheduler blocking daemon executing run_refresh_pipeline periodically.
+
+    Designed for containerized scheduler workers (Docker Compose, Kubernetes jobs).
+    Executes an initial refresh immediately, then blocks on scheduled intervals.
+    """
+    import signal
+
+    from apscheduler.schedulers.blocking import BlockingScheduler
+
+    scheduler = BlockingScheduler(timezone="UTC")
+    scheduler.add_job(
+        run_refresh_pipeline,
+        trigger="interval",
+        hours=interval_hours,
+        kwargs={"limit_stations": limit_stations},
+        id="hydropulse_refresh_job",
+        replace_existing=True,
+    )
+
+    def _shutdown(signum, frame):
+        logger.info("Received termination signal %s. Shutting down scheduler...", signum)
+        scheduler.shutdown(wait=False)
+
+    signal.signal(signal.SIGINT, _shutdown)
+    if hasattr(signal, "SIGTERM"):
+        signal.signal(signal.SIGTERM, _shutdown)
+
+    logger.info(
+        "APScheduler blocking daemon starting (every %d hours, %s stations). Initializing first cycle...",
+        interval_hours,
+        limit_stations if limit_stations is not None else "all",
+    )
+    # Run immediate first cycle
+    try:
+        run_refresh_pipeline(limit_stations=limit_stations)
+    except Exception as exc:
+        logger.error("Initial refresh cycle encountered an error: %s", exc)
+
+    try:
+        scheduler.start()
+    except (KeyboardInterrupt, SystemExit):
+        logger.info("Scheduler daemon terminated gracefully.")
+    return scheduler
+
+
 def main(argv: list[str] | None = None) -> int:
     """CLI entry point for data refresh pipeline."""
     parser = argparse.ArgumentParser(description="HydroPulse AI Data Refresh Engine")
@@ -247,11 +293,32 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="History end date (YYYY-MM-DD)",
     )
+    parser.add_argument(
+        "--daemon",
+        action="store_true",
+        help="Run continuously as a foreground scheduler daemon (for Docker scheduler service)",
+    )
+    parser.add_argument(
+        "--interval-hours",
+        type=int,
+        default=6,
+        help="Refresh interval in hours when running in daemon mode (default: 6)",
+    )
 
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
     limit = None if args.stations <= 0 else args.stations
+
+    if args.daemon:
+        logger.info(
+            "Entering daemon mode with interval=%d hours, stations=%s",
+            args.interval_hours,
+            limit,
+        )
+        start_blocking_scheduler(interval_hours=args.interval_hours, limit_stations=limit)
+        return 0
+
     summary = run_refresh_pipeline(
         limit_stations=limit,
         include_history=args.history,

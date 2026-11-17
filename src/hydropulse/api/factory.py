@@ -19,7 +19,10 @@ from src.hydropulse.web.routes import dashboard, web_bp
 
 def configure_logging(app: Flask) -> None:
     """Set up structured console logging."""
-    log_level = logging.DEBUG if app.debug else logging.INFO
+    log_level_name = getattr(settings, "log_level", "INFO").upper()
+    log_level = getattr(logging, log_level_name, logging.INFO)
+    if app.debug:
+        log_level = logging.DEBUG
     logging.basicConfig(
         level=log_level,
         format="%(asctime)s [%(levelname)s] [%(name)s] %(message)s",
@@ -34,17 +37,19 @@ def register_error_handlers(app: Flask) -> None:
         now_iso = datetime.now(UTC).isoformat()
         req_id = getattr(g, "request_id", None)
         return (
-            jsonify({
-                "error": {
-                    "status_code": status_code,
-                    "title": title,
-                    "detail": detail,
-                },
-                "generated_at": now_iso,
-                "service": "hydropulse-ai",
-                "version": __version__,
-                "request_id": req_id,
-            }),
+            jsonify(
+                {
+                    "error": {
+                        "status_code": status_code,
+                        "title": title,
+                        "detail": detail,
+                    },
+                    "generated_at": now_iso,
+                    "service": "hydropulse-ai",
+                    "version": __version__,
+                    "request_id": req_id,
+                }
+            ),
             status_code,
         )
 
@@ -89,9 +94,13 @@ def create_app(config_override: dict[str, Any] | None = None) -> Flask:
         app.config.update(config_override)
 
     # Explicit CORS configuration per AGENTS.md rule 7
+    raw_cors = getattr(settings, "cors_origins", "*")
+    cors_origins: str | list[str] = (
+        raw_cors if raw_cors == "*" else [o.strip() for o in raw_cors.split(",") if o.strip()]
+    )
     CORS(
         app,
-        resources={r"/api/*": {"origins": "*"}},
+        resources={r"/api/*": {"origins": cors_origins}},
         methods=["GET", "POST", "OPTIONS"],
         allow_headers=["Content-Type", "Authorization", "X-Request-ID"],
     )
@@ -115,18 +124,20 @@ def create_app(config_override: dict[str, Any] | None = None) -> Flask:
         accept_header = request.headers.get("Accept", "")
         if "text/html" in accept_header and "application/json" not in accept_header:
             return dashboard()
-        return jsonify({
-            "service": "HydroPulse AI",
-            "description": "Jharkhand River Health Monitoring & Early Warning System",
-            "version": __version__,
-            "dashboard_url": "/dashboard",
-            "docs_url": "/docs",
-            "health_url": "/api/v1/health",
-            "advisory": (
-                "Official warnings are issued by the Central Water Commission (CWC) "
-                "and Jharkhand State Disaster Management Authority (JSDMA)."
-            ),
-        })
+        return jsonify(
+            {
+                "service": "HydroPulse AI",
+                "description": "Jharkhand River Health Monitoring & Early Warning System",
+                "version": __version__,
+                "dashboard_url": "/dashboard",
+                "docs_url": "/docs",
+                "health_url": "/api/v1/health",
+                "advisory": (
+                    "Official warnings are issued by the Central Water Commission (CWC) "
+                    "and Jharkhand State Disaster Management Authority (JSDMA)."
+                ),
+            }
+        )
 
     return app
 

@@ -1,0 +1,39 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python byte-code & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# Testing & Linting caches
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+.mypy_cache/
+.ruff_cache/
+
+# Local Secrets & Environment overrides
+.env
+.env.local
+*.pem
+*.key
+
+# Temporary files, artifacts & logs
+*.log
+*.tmp
+scratch/
+brain/
+tmp/
+temp/
+.DS_Store
+Thumbs.db
