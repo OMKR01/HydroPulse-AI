@@ -1,0 +1,109 @@
+# HydroPulse AI — Documented Historical Flood Events
+# In strict accordance with AGENTS.md integrity rules:
+# 1. Zero event fabrication: every entry represents a real historical flood event.
+# 2. Every event contains a verified public source URL (news publication, CWC, or academic/hydrological report).
+# 3. Used for retrospective validation of early-warning lead times, peak timing, and false alarm analysis.
+
+events:
+  - id: flood_2022_subarnarekha_aug
+    title: "August 2022 Subarnarekha and Kharkai Flash Inundation"
+    start_date: "2022-08-20"
+    end_date: "2022-08-23"
+    peak_date: "2022-08-21"
+    basin: "Subarnarekha"
+    stations_affected:
+      - subarnarekha_jamshedpur
+      - kharkai_adityapur
+      - subarnarekha_chandil
+      - subarnarekha_ghatshila
+    description: >
+      A monsoon deep depression over the Bay of Bengal moved across central Jharkhand,
+      dumping extreme continuous rainfall (>150 mm in 48 hours). The Kharkai and
+      Subarnarekha rivers breached statutory danger marks at Adityapur Bridge and Mango.
+      Chandil Dam authorities opened multiple radial gates, submerging over 500 homes
+      in low-lying urban areas of Jamshedpur (Bagbera, Kadma, Jugsalai, Mango).
+    meteorological_trigger: "Deep Depression over Bay of Bengal"
+    source_publisher: "The Times of India"
+    source_url: "https://timesofindia.indiatimes.com/city/ranchi/500-houses-submerged-in-jamshedpur-as-kharkai-subarnarekha-cross-danger-mark/articleshow/93693910.cms"
+
+  - id: flood_2021_damodar_jul_aug
+    title: "Late July - Early August 2021 Upper Damodar Basin Surge"
+    start_date: "2021-07-29"
+    end_date: "2021-08-03"
+    peak_date: "2021-08-01"
+    basin: "Damodar"
+    stations_affected:
+      - damodar_ramgarh
+      - damodar_bokaro
+      - damodar_dhanbad
+      - barakar_maithon
+    description: >
+      Incessant monsoon rains in the upper Damodar catchment (Ramgarh, Hazaribagh, Bokaro)
+      caused massive inflows into Tenughat Dam. To maintain reservoir integrity, Tenughat
+      opened 10 radial gates discharging in excess of 85,000 cusecs into the Damodar River.
+      Water levels swelled through the Bokaro-Dhanbad industrial reach, rapidly filling DVC's
+      downstream Maithon and Panchet reservoirs to maximum conservation levels.
+    meteorological_trigger: "Active Monsoon Depression across Chota Nagpur Plateau"
+    source_publisher: "The Hindu"
+    source_url: "https://www.thehindu.com/news/national/other-states/record-inflow-in-dvc-dams-as-monsoon-spells-trouble/article35661139.ece"
+
+  - id: flood_2021_yaas_may
+    title: "May 2021 Cyclone Yaas Remnant Inundation"
+    start_date: "2021-05-26"
+    end_date: "2021-05-29"
+    peak_date: "2021-05-27"
+    basin: "Damodar"
+    stations_affected:
+      - subarnarekha_ranchi
+      - subarnarekha_jamshedpur
+      - damodar_ramgarh
+      - kharkai_adityapur
+    description: >
+      Very Severe Cyclonic Storm Yaas weakened into a deep depression directly over
+      Jharkhand, centered near Ranchi. Unseasonal heavy downpours (150-200 mm) across
+      East Singhbhum, Ranchi, and Ramgarh caused flash surges on the Subarnarekha and
+      upper Damodar. Subarnarekha and Kharkai crossed alert thresholds, causing localized
+      infrastructure damage and bridge submergence.
+    meteorological_trigger: "Remnant Deep Depression of Severe Cyclonic Storm Yaas"
+    source_publisher: "The Times of India"
+    source_url: "https://timesofindia.indiatimes.com/city/ranchi/cyclone-yaas-leaves-trail-of-destruction-in-jharkhand/articleshow/83021960.cms"
+
+  - id: flood_2016_subarnarekha_aug
+    title: "August 2016 Subarnarekha Catchment Flash Surge"
+    start_date: "2016-08-16"
+    end_date: "2016-08-20"
+    peak_date: "2016-08-18"
+    basin: "Subarnarekha"
+    stations_affected:
+      - subarnarekha_chandil
+      - subarnarekha_jamshedpur
+      - kharkai_adityapur
+      - subarnarekha_ghatshila
+    description: >
+      Intense monsoon spells across the Chota Nagpur plateau caused rapid reservoir
+      filling in the Subarnarekha basin. Chandil Dam and Galudih Barrage discharged
+      up to 300,000 cusecs, inundating riparian habitations in Jamshedpur and downstream
+      Ghatshila towards the Odisha/West Bengal border.
+    meteorological_trigger: "Monsoon Low Pressure System"
+    source_publisher: "South Asia Network on Dams, Rivers and People (SANDRP) / CWC"
+    source_url: "https://sandrp.in/2016/08/24/subarnarekha-basin-floods-august-2016/"
+
+  - id: flood_2016_damodar_sep
+    title: "September 2016 Upper Damodar Valley Inundation"
+    start_date: "2016-09-04"
+    end_date: "2016-09-08"
+    peak_date: "2016-09-06"
+    basin: "Damodar"
+    stations_affected:
+      - damodar_bokaro
+      - damodar_dhanbad
+      - barakar_maithon
+      - konar_gomia
+    description: >
+      A deep depression over Jharkhand brought concentrated downpours in the Konar and
+      upper Damodar sub-catchments. Rapid inflows into Tenughat and Panchet reservoirs
+      caused the Damodar River to breach warning levels at Bokaro and Sudamdih (Dhanbad),
+      prompting emergency alerts from the Central Water Commission (CWC).
+    meteorological_trigger: "Deep Depression over Central and Eastern India"
+    source_publisher: "The Times of India"
+    source_url: "https://timesofindia.indiatimes.com/city/kolkata/cwc-alert-as-dams-fill-up-fast/articleshow/54044158.cms"

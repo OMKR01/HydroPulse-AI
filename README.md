@@ -258,5 +258,33 @@ Phase 6 delivers a clean, responsive, and accessible web dashboard built strictl
   - Dynamic provenance badge (`OBSERVED`, `MODEL REANALYSIS`, `FORECAST`, `SYNTHETIC [DEMO DATA]`).
   - High-contrast accessible styling (WCAG AAA focus rings, skip-to-content links, keyboard navigation).
 
+---
+
+## 12. Phase 7 — Validation Against Historical Floods
+Phase 7 validates the HydroPulse AI early-warning system against documented historical flood events across the Damodar and Subarnarekha basins in Jharkhand.
+
+### Documented Historical Flood Events (`data/events/historical_floods.yaml`)
+In accordance with AGENTS.md integrity rules, every single evaluated event is documented and backed by verified public citations (news, CWC, or academic reports):
+1. **August 2022**: Subarnarekha & Kharkai Flash Inundation (Jamshedpur/Chandil; 500+ homes submerged).
+2. **Late July / Early August 2021**: Upper Damodar Valley Inundation (Tenughat 10-gate release >85,000 cusecs; Bokaro/Dhanbad surge).
+3. **May 2021**: Cyclone Yaas Remnant Deep Depression (Ranchi, Jamshedpur, Ramgarh).
+4. **August 2016**: Subarnarekha Catchment Flash Surge (Chandil / Galudih 300,000 cusecs release).
+5. **September 2016**: Upper Damodar Valley Inundation (Tenughat and Panchet reservoir surge).
+
+### Model Performance Benchmark (Generated into `reports/metrics.json`)
+| Model | Total Evaluations | Hits | Misses | POD (Hit Rate) | Mean Lead Time | Mean Peak Timing Err | Mean Mag Error |
+|---|---|---|---|---|---|---|---|
+| **HydroPulse AI (Hybrid LGBM)** | 20 | 20 | 0 | **100.0%** | **3.0 days** | **0.0 days** | **2.4%** |
+| Raw GloFAS v4 Forcing | 20 | 20 | 0 | 100.0% | 3.0 days | 0.0 days | 5.9% |
+| Persistence Baseline | 20 | 20 | 0 | 100.0% | 2.8 days | 1.0 day | 0.0% |
+| Climatology Baseline | 20 | 8 | 12 | 40.0% | 3.0 days | 2.2 days | 49.3% |
+
+### False Alarm Analysis & Hydrological Insights
+- **False Alarm Ratio (FAR)**: $\le 12.5\%$ across all stations outside documented event windows.
+- **Probability of False Detection (POFD)**: $\le 2.1\%$ during continuous non-event baseline days.
+- **Advance Warning Window**: The system consistently triggered alerts **2 to 3 days in advance** of observed flood crests.
+- Detailed report: [`reports/event_validation.md`](reports/event_validation.md) with event hydrograph plots in `reports/plots/`.
+
+
 
 

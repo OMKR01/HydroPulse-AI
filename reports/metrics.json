@@ -2387,5 +2387,47 @@
       "test_accuracy": 0.9167,
       "random_seed": 42
     }
+  },
+  "historical_event_validation": {
+    "events_count": 5,
+    "total_evaluations": 20,
+    "model_summary": {
+      "hydropulse_ai": {
+        "total_evaluations": 20,
+        "hits": 20,
+        "misses": 0,
+        "POD": 1.0,
+        "mean_lead_time_days": 3.0,
+        "mean_abs_timing_error_days": 0.0,
+        "mean_abs_magnitude_error_pct": 2.4
+      },
+      "raw_glofas": {
+        "total_evaluations": 20,
+        "hits": 20,
+        "misses": 0,
+        "POD": 1.0,
+        "mean_lead_time_days": 3.0,
+        "mean_abs_timing_error_days": 0.0,
+        "mean_abs_magnitude_error_pct": 5.88
+      },
+      "persistence": {
+        "total_evaluations": 20,
+        "hits": 20,
+        "misses": 0,
+        "POD": 1.0,
+        "mean_lead_time_days": 2.8,
+        "mean_abs_timing_error_days": 1.0,
+        "mean_abs_magnitude_error_pct": 0.0
+      },
+      "climatology": {
+        "total_evaluations": 20,
+        "hits": 8,
+        "misses": 12,
+        "POD": 0.4,
+        "mean_lead_time_days": 3.0,
+        "mean_abs_timing_error_days": 2.2,
+        "mean_abs_magnitude_error_pct": 49.29
+      }
+    }
   }
 }

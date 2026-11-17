@@ -52,5 +52,13 @@ In strict accordance with the project integrity principles, all assumptions, dat
 - **Client-Side JavaScript Rendering**: The dashboard is a progressively enhanced plain Jinja/JavaScript web interface. Interactive geospatial zooming, SVG marker rendering, and Chart.js hydrographs require JavaScript execution in the browser.
 - **Client Hardware Acceleration**: While Chart.js and SVG vectors are optimized for high frame rates, rendering long historical series (> 90 days) on low-power mobile devices may experience slight canvas rendering delays; the UI defaults to a 14-day history view to ensure smooth interactivity.
 
+## 12. Historical Flood Event Validation (Phase 7)
+- **GloFAS Discharge as a Simulation Target**: GloFAS v4 discharge is land-surface model simulation output (HTESSEL + LISFLOOD), not observed gauge telemetry. Historical event validation assesses the ML system's ability to anticipate and correct this modeled surge trajectory.
+- **Absence of Real-Time Dam Gate Telemetry**: Unannounced or sudden emergency gate openings at Tenughat Dam (Damodar) and Chandil Dam (Subarnarekha) cause immediate step-function discharge spikes that precipitation-driven models cannot anticipate until the surge reaches downstream gauges.
+- **Point-Snapping Spatial Discrepancies**: Station coordinates snapped to 0.05-degree (~5 km) river cells introduce a minor spatial displacement (typically 0.5–3.8 km) between physical town coordinates and simulated channel centers.
+- **Sourced Event Scope**: Retrospective validation is conducted exclusively against documented, sourced flood events in Jharkhand (2016, 2021, 2022). Historical events lacking verifiable public documentation are strictly excluded per AGENTS.md integrity rules.
+- **Advisory Prototype Limitation**: HydroPulse AI early warnings are advisory research outputs intended to support civil authorities. Official warnings and flood declarations remain the sole statutory prerogative of the Central Water Commission (CWC) and Jharkhand State Disaster Management Authority (JSDMA).
+
+
 
 

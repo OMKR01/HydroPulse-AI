@@ -113,3 +113,17 @@ Station-level time-series are exported as columnar Parquet datasets following cl
 | **Static Attributes** | `static_elevation_m`, `static_drainage_area_km2`, `static_channel_slope_m_per_km`, `static_stream_order`, `static_dominant_land_cover` | Physiographic catchment characteristics enabling entity-aware multi-station modeling. |
 | **Forecast Targets** | `target_discharge_h1` … `target_discharge_h7` | Lead river discharge targets for forecasting horizons $t+1 \dots t+7$ days ahead. |
 
+---
+
+## 4. Documented Historical Flood Events (`data/events/historical_floods.yaml`)
+In accordance with AGENTS.md integrity rules, every event used for validation represents a verified, documented historical flood event in Jharkhand backed by news publications, CWC, or peer-reviewed literature.
+
+| Event ID | Event Title & Basin | Dates | Sourced URL | Publisher / Authority |
+|---|---|---|---|---|
+| `flood_2022_subarnarekha_aug` | August 2022 Subarnarekha and Kharkai Flash Inundation (Subarnarekha) | 2022-08-20 to 2022-08-23 | [Times of India Article](https://timesofindia.indiatimes.com/city/ranchi/500-houses-submerged-in-jamshedpur-as-kharkai-subarnarekha-cross-danger-mark/articleshow/93693910.cms) | The Times of India |
+| `flood_2021_damodar_jul_aug` | Late July - Early August 2021 Upper Damodar Basin Surge (Damodar) | 2021-07-29 to 2021-08-03 | [The Hindu Article](https://www.thehindu.com/news/national/other-states/record-inflow-in-dvc-dams-as-monsoon-spells-trouble/article35661139.ece) | The Hindu / DVC |
+| `flood_2021_yaas_may` | May 2021 Cyclone Yaas Remnant Inundation (Damodar & Subarnarekha) | 2021-05-26 to 2021-05-29 | [Times of India Article](https://timesofindia.indiatimes.com/city/ranchi/cyclone-yaas-leaves-trail-of-destruction-in-jharkhand/articleshow/83021960.cms) | The Times of India / IMD |
+| `flood_2016_subarnarekha_aug` | August 2016 Subarnarekha Catchment Flash Surge (Subarnarekha) | 2016-08-16 to 2016-08-20 | [SANDRP Report](https://sandrp.in/2016/08/24/subarnarekha-basin-floods-august-2016/) | SANDRP / CWC |
+| `flood_2016_damodar_sep` | September 2016 Upper Damodar Valley Inundation (Damodar) | 2016-09-04 to 2016-09-08 | [Times of India Article](https://timesofindia.indiatimes.com/city/kolkata/cwc-alert-as-dams-fill-up-fast/articleshow/54044158.cms) | The Times of India / CWC |
+
+
