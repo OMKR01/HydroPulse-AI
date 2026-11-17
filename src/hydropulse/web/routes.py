@@ -28,4 +28,5 @@ def dashboard():
         environment=settings.environment,
         last_updated=now_iso,
         default_lang="en",
+        mapbox_token=getattr(settings, "mapbox_access_token", ""),
     )

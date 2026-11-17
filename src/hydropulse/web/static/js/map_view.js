@@ -70,12 +70,68 @@ export class MapView {
       zoomControl: true,
     });
 
-    // High-contrast, clean CartoDB Dark Matter basemap
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      subdomains: 'abcd',
-      maxZoom: 19,
-    }).addTo(this.map);
+    // Base layer tile providers: CartoDB/OpenStreetMap (default, free, no API key needed)
+    const cartoVoyager = L.tileLayer(
+      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+      {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 19,
+      }
+    );
+
+    const cartoDark = L.tileLayer(
+      'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+      {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 19,
+      }
+    );
+
+    const baseLayers = {
+      'CartoDB Voyager (Topography)': cartoVoyager,
+      'CartoDB Dark': cartoDark,
+    };
+
+    // Optional Mapbox basemaps if user supplied a token via environment variable
+    const mapboxToken = window.MAPBOX_ACCESS_TOKEN || '';
+    if (mapboxToken) {
+      const mapboxOutdoors = L.tileLayer(
+        `https://api.mapbox.com/styles/v1/mapbox/outdoors-v12/tiles/{z}/{x}/{y}?access_token=${mapboxToken}`,
+        {
+          attribution:
+            '&copy; <a href="https://www.mapbox.com/about/maps/" target="_blank" rel="noopener">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>',
+          tileSize: 512,
+          zoomOffset: -1,
+          maxZoom: 19,
+        }
+      );
+
+      const mapboxDark = L.tileLayer(
+        `https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/{z}/{x}/{y}?access_token=${mapboxToken}`,
+        {
+          attribution:
+            '&copy; <a href="https://www.mapbox.com/about/maps/" target="_blank" rel="noopener">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>',
+          tileSize: 512,
+          zoomOffset: -1,
+          maxZoom: 19,
+        }
+      );
+
+      baseLayers['Mapbox Outdoors (Topography)'] = mapboxOutdoors;
+      baseLayers['Mapbox Dark'] = mapboxDark;
+      mapboxOutdoors.addTo(this.map);
+    } else {
+      cartoVoyager.addTo(this.map);
+    }
+
+    // Interactive Base Layer Switcher (Top-Right)
+    L.control
+      .layers(baseLayers, null, { position: 'topright' })
+      .addTo(this.map);
 
     this.markersLayer = L.layerGroup().addTo(this.map);
   }

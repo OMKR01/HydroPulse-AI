@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     rate_limit_per_minute: int = int(os.getenv("RATE_LIMIT_PER_MINUTE", "60"))
     cache_ttl_seconds: int = int(os.getenv("CACHE_TTL_SECONDS", "300"))
     log_level: str = os.getenv("LOG_LEVEL", "INFO")
+    mapbox_access_token: str = os.getenv("MAPBOX_ACCESS_TOKEN", "")
 
     class Config:
         env_file = ".env"
