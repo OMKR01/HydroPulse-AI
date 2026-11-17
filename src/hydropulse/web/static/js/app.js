@@ -106,6 +106,30 @@ class DashboardApp {
 
     // 6. Setup 60s live refresh polling
     setInterval(() => this.refreshData(true), 60000);
+
+    // 7. Live Real-Time Clock
+    this.startLiveClock();
+  }
+
+  startLiveClock() {
+    const clockEl = document.getElementById('system-clock-display');
+    if (!clockEl) return;
+
+    const pad = (n) => String(n).padStart(2, '0');
+
+    const updateClock = () => {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = pad(now.getMonth() + 1);
+      const day = pad(now.getDate());
+      const hours = pad(now.getHours());
+      const mins = pad(now.getMinutes());
+      const secs = pad(now.getSeconds());
+      clockEl.textContent = `${year}-${month}-${day} ${hours}:${mins}:${secs} IST`;
+    };
+
+    updateClock();
+    setInterval(updateClock, 1000);
   }
 
   wireEvents() {
