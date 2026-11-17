@@ -1,47 +1,62 @@
 /* ==========================================================================
-   HydroPulse AI — Accessible High-Contrast Dashboard Stylesheet
-   Designed for WCAG AAA Accessibility, Color-Blind Safety & Responsive UX
+   INVERSA DESIGN SYSTEM — HYDROLOGIC FIELD TERMINAL
+   Topographic field terminal at midnight.
+   Obsidian Loam (#13140e) canvas, Bone Vellum (#f4f3e8) editorial type,
+   and Lime Surveyor (#ebfc72) tactical highlights.
+   Utilitarian, shadowless, 3.6px radii, hairline Iron Filings (#404040) borders.
    ========================================================================== */
 
 :root {
-  /* Color Palette - Deep Dark River Theme */
-  --bg-canvas: #090e17;
-  --bg-surface: #101a28;
-  --bg-surface-elevated: #162438;
-  --bg-surface-hover: #1e314b;
-  --border-subtle: #243b55;
-  --border-prominent: #38597e;
+  /* ── 1. INVERSA Colors ─────────────────────────────────────────────────── */
+  --color-obsidian-loam: #13140e;  /* Near-black canvas with faint warm olive cast */
+  --color-bone-vellum: #f4f3e8;    /* Warm paper off-white for text and headings */
+  --color-iron-filings: #404040;   /* Hairline borders, dividers, subtle rules */
+  --color-drift-ash: #84837b;      /* Muted secondary labels, telemetry timestamps */
+  --color-lime-surveyor: #ebfc72;  /* Electric neon-lime marker accent */
+  --color-marsh-olive: #bacd31;    /* Deep transition olive for secondary gradients */
 
-  /* Typography */
-  --text-main: #f0f4f8;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --text-accent: #38bdf8;
+  /* Semantic Mappings */
+  --bg-canvas: var(--color-obsidian-loam);
+  --bg-surface: var(--color-obsidian-loam);
+  --bg-surface-elevated: #181912;
+  --bg-surface-hover: #1f2017;
+  --border-subtle: var(--color-iron-filings);
+  --border-prominent: var(--color-drift-ash);
 
-  /* Color-Blind Safe Risk Palette (Double-encoded: Color + Shape + Text) */
-  --risk-normal: #10b981;    /* Emerald Green / Circle */
-  --risk-watch: #f59e0b;     /* Amber Orange / Square */
-  --risk-warning: #f43f5e;   /* Rose Crimson / Triangle */
-  --risk-danger: #9333ea;    /* Purple / Octagon */
+  --text-main: var(--color-bone-vellum);
+  --text-secondary: var(--color-drift-ash);
+  --text-muted: #5e5d56;
+  --text-accent: var(--color-lime-surveyor);
 
-  --risk-normal-bg: rgba(16, 185, 129, 0.15);
+  /* Tactical Alert Palette (Double-encoded: Color + Shape + Text) */
+  --risk-normal: #ebfc72;          /* Lime Surveyor / Circle */
+  --risk-watch: #f59e0b;           /* Amber Orange / Square */
+  --risk-warning: #f43f5e;         /* Rose Crimson / Triangle */
+  --risk-danger: #ef4444;          /* Signal Red / Octagon */
+
+  --risk-normal-bg: rgba(235, 252, 114, 0.12);
   --risk-watch-bg: rgba(245, 158, 11, 0.15);
   --risk-warning-bg: rgba(244, 63, 94, 0.15);
-  --risk-danger-bg: rgba(147, 51, 234, 0.15);
+  --risk-danger-bg: rgba(239, 68, 68, 0.18);
 
-  /* Fonts */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', Consolas, monospace;
+  /* ── 2. Typography ──────────────────────────────────────────────────────── */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Layout */
-  --header-height: 110px;
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --tracking-editorial: -0.0300em;
+  --tracking-mono: 0.02em;
+
+  /* ── 3. Spacing & Shapes ────────────────────────────────────────────────── */
+  --radius-tags: 3.6px;
+  --radius-cards: 0px;
+  --radius-inputs: 3.6px;
+  --radius-buttons: 3.6px;
+
+  /* Header & Navigation Metrics */
+  --header-height: 104px;
 }
 
-/* Reset & Base Rules */
+/* ── Reset & Base Layout ──────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -55,34 +70,37 @@ html, body {
   color: var(--text-main);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Accessibility: Skip Navigation Link */
 .skip-nav-link {
   position: absolute;
   top: -999px;
-  left: 10px;
-  background: var(--text-accent);
-  color: #000;
+  left: 12px;
+  background: var(--color-lime-surveyor);
+  color: var(--color-obsidian-loam);
   padding: 8px 16px;
+  font-family: var(--font-mono);
   font-weight: 700;
-  border-radius: var(--radius-sm);
+  font-size: 13px;
+  border-radius: var(--radius-buttons);
   z-index: 9999;
   text-decoration: none;
 }
 .skip-nav-link:focus {
-  top: 10px;
+  top: 12px;
 }
 
 /* Accessible Focus Ring */
 :focus-visible {
-  outline: 3px solid var(--text-accent);
+  outline: 2px solid var(--color-lime-surveyor);
   outline-offset: 2px;
 }
 
-/* Header & Banner */
+/* ── Top Header / Command Bar ────────────────────────────────────────────── */
 .app-header {
-  background: var(--bg-surface);
+  background: var(--bg-canvas);
   border-bottom: 1px solid var(--border-subtle);
   position: sticky;
   top: 0;
@@ -93,50 +111,55 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 24px;
+  padding: 12px 24px;
   gap: 16px;
 }
 
 .brand-section {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .brand-emblem {
-  color: var(--text-accent);
+  color: var(--color-lime-surveyor);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .brand-title {
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: var(--tracking-editorial);
+  color: var(--text-main);
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .brand-accent {
-  color: var(--text-accent);
+  color: var(--color-lime-surveyor);
 }
 
 .badge-beta {
-  font-size: 0.65rem;
-  background: var(--border-subtle);
-  color: var(--text-secondary);
+  font-size: 10px;
+  background: transparent;
+  color: var(--color-lime-surveyor);
+  border: 1px solid var(--color-iron-filings);
   padding: 2px 6px;
-  border-radius: 999px;
+  border-radius: var(--radius-tags);
   font-weight: 600;
   font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .brand-subtitle {
-  font-size: 0.75rem;
+  font-size: 12px;
   color: var(--text-secondary);
-  font-weight: 500;
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
 }
 
 .header-actions {
@@ -145,44 +168,45 @@ html, body {
   gap: 12px;
 }
 
-/* Provenance Pill */
+/* Provenance Indicator Pill */
 .provenance-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(56, 189, 248, 0.1);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  color: var(--text-accent);
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
   padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 700;
+  border-radius: var(--radius-tags);
+  font-size: 11px;
+  font-weight: 600;
   font-family: var(--font-mono);
   letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .pulse-dot {
-  width: 8px;
-  height: 8px;
-  background: var(--text-accent);
+  width: 6px;
+  height: 6px;
+  background: var(--color-lime-surveyor);
   border-radius: 50%;
-  box-shadow: 0 0 8px var(--text-accent);
   animation: pulse-glow 2s infinite ease-in-out;
 }
 
 @keyframes pulse-glow {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.85); }
+  50% { opacity: 0.3; transform: scale(0.8); }
 }
 
-/* Control Buttons */
+/* Utilitarian Control Buttons */
 .control-btn {
-  background: var(--bg-surface-elevated);
+  background: transparent;
   border: 1px solid var(--border-subtle);
   color: var(--text-main);
-  padding: 6px 12px;
-  border-radius: var(--radius-md);
-  font-size: 0.8rem;
+  padding: 6px 14px;
+  border-radius: var(--radius-buttons);
+  font-size: 12px;
+  font-family: var(--font-mono);
   font-weight: 600;
   cursor: pointer;
   display: inline-flex;
@@ -192,20 +216,25 @@ html, body {
 }
 
 .control-btn:hover {
-  background: var(--bg-surface-hover);
-  border-color: var(--border-prominent);
+  background: var(--bg-surface-elevated);
+  border-color: var(--color-lime-surveyor);
+  color: var(--color-lime-surveyor);
 }
 
 .lang-toggle .active {
-  color: var(--text-accent);
-  font-weight: 800;
+  color: var(--color-lime-surveyor);
+  font-weight: 700;
+  border-bottom: 2px solid var(--color-lime-surveyor);
+  padding-bottom: 1px;
 }
 .lang-divider {
-  color: var(--text-muted);
+  color: var(--border-subtle);
+  margin: 0 2px;
 }
 
 .refresh-icon {
   transition: transform 0.4s ease;
+  stroke: currentColor;
 }
 .refresh-btn.spinning .refresh-icon {
   animation: spin 1s linear infinite;
@@ -223,96 +252,111 @@ html, body {
 .nav-link {
   color: var(--text-secondary);
   text-decoration: none;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  font-weight: 500;
   padding: 6px 10px;
-  border-radius: var(--radius-sm);
-  transition: color 0.15s ease;
+  border: 1px solid transparent;
+  border-radius: var(--radius-buttons);
+  transition: all 0.15s ease;
 }
 .nav-link:hover {
-  color: var(--text-accent);
+  color: var(--color-lime-surveyor);
+  border-color: var(--border-subtle);
 }
 
-/* Statutory Disclaimer Banner */
+/* ── Statutory Advisory Disclaimer Banner ────────────────────────────────── */
 .disclaimer-banner {
-  background: #3b160e;
-  border-top: 1px solid #7c2d12;
-  border-bottom: 2px solid #ea580c;
-  padding: 6px 24px;
+  background: #181912;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 8px 24px;
 }
 
 .disclaimer-inner {
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
+  align-items: center;
+  gap: 12px;
   max-width: 1400px;
   margin: 0 auto;
 }
 
 .disclaimer-icon {
-  font-size: 1rem;
-  line-height: 1.3;
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--color-lime-surveyor);
 }
 
 .disclaimer-text {
-  font-size: 0.72rem;
-  color: #ffedd5;
-  line-height: 1.35;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  font-family: var(--font-sans);
 }
 .disclaimer-text strong {
-  color: #fed7aa;
+  color: var(--color-lime-surveyor);
+  font-family: var(--font-mono);
+  letter-spacing: 0.03em;
+  margin-right: 6px;
 }
 
-/* Active Alerts Strip */
+/* ── Active Basin Alerts Ticker Strip ────────────────────────────────────── */
 .alerts-ticker-strip {
-  background: #1e1329;
-  border-bottom: 1px solid #4a1d6d;
+  background: var(--bg-canvas);
+  border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
-  padding: 6px 24px;
-  gap: 12px;
+  padding: 8px 24px;
+  gap: 14px;
+}
+
+.ticker-label {
+  display: flex;
+  align-items: center;
 }
 
 .ticker-badge {
-  background: var(--risk-danger);
-  color: #fff;
-  font-size: 0.65rem;
-  font-weight: 800;
-  padding: 2px 8px;
-  border-radius: var(--radius-sm);
+  background: var(--color-lime-surveyor);
+  color: var(--color-obsidian-loam);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-tags);
   letter-spacing: 0.05em;
   white-space: nowrap;
 }
 
 .ticker-content {
-  font-size: 0.78rem;
-  color: #e9d5ff;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-main);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: 1;
 }
 
-/* Main Dashboard Grid */
+/* ── Master Grid Architecture ────────────────────────────────────────────── */
 .dashboard-wrapper {
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - var(--header-height) - 60px);
+  min-height: calc(100vh - var(--header-height) - 40px);
 }
 
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr 480px;
   flex: 1;
-  min-height: 700px;
+  min-height: 720px;
 }
 
-/* Map Section (Left Column) */
+/* ── Geospatial River Basin Map (Left Column) ────────────────────────────── */
 .map-section {
   position: relative;
   display: flex;
   flex-direction: column;
-  background: #0d1520;
+  background: var(--bg-canvas);
   border-right: 1px solid var(--border-subtle);
 }
 
@@ -320,35 +364,41 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
-  background: var(--bg-surface);
+  padding: 10px 20px;
+  background: var(--bg-canvas);
   border-bottom: 1px solid var(--border-subtle);
   z-index: 400;
-  gap: 8px;
+  gap: 12px;
 }
 
 .basin-filter-group {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
 .basin-pill {
-  background: var(--bg-surface-elevated);
+  background: transparent;
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 5px 10px;
-  border-radius: 999px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: var(--radius-buttons);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.basin-pill:hover,
+.basin-pill:hover {
+  color: var(--text-main);
+  border-color: var(--color-drift-ash);
+}
+
 .basin-pill.active {
-  background: var(--text-accent);
-  color: #000;
-  border-color: var(--text-accent);
+  background: var(--color-lime-surveyor);
+  color: var(--color-obsidian-loam);
+  border-color: var(--color-lime-surveyor);
+  font-weight: 700;
 }
 
 .station-counters {
@@ -360,62 +410,65 @@ html, body {
 .counter-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 0.72rem;
-  font-weight: 700;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
   padding: 3px 8px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-tags);
   font-family: var(--font-mono);
+  background: transparent;
+  border: 1px solid var(--border-subtle);
 }
 
-.counter-normal { background: var(--risk-normal-bg); color: var(--risk-normal); }
-.counter-watch  { background: var(--risk-watch-bg);  color: var(--risk-watch); }
-.counter-warning{ background: var(--risk-warning-bg);color: var(--risk-warning); }
-.counter-danger { background: var(--risk-danger-bg); color: var(--risk-danger); }
+.counter-normal { color: var(--risk-normal); }
+.counter-watch  { color: var(--risk-watch); }
+.counter-warning{ color: var(--risk-warning); }
+.counter-danger { color: var(--risk-danger); }
 
 /* Leaflet Viewport */
 .map-viewport {
   flex: 1;
-  min-height: 550px;
-  background: #0b1420;
+  min-height: 560px;
+  background: var(--color-obsidian-loam);
 }
 
 /* Floating Accessible Legend */
 .map-legend {
   position: absolute;
-  bottom: 24px;
-  left: 24px;
-  background: rgba(16, 26, 40, 0.92);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--border-prominent);
-  border-radius: var(--radius-md);
-  padding: 10px 14px;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(19, 20, 14, 0.95);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-cards);
+  padding: 12px 16px;
   z-index: 500;
-  box-shadow: var(--shadow-card);
-  max-width: 240px;
+  max-width: 250px;
 }
 
 .legend-title {
-  font-size: 0.75rem;
+  font-size: 11px;
+  font-family: var(--font-mono);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--text-secondary);
-  margin-bottom: 6px;
+  color: var(--color-lime-surveyor);
+  margin-bottom: 8px;
 }
 
 .legend-list {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.72rem;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-main);
 }
 
 .legend-icon {
@@ -429,9 +482,12 @@ html, body {
 .icon-danger { color: var(--risk-danger); }
 
 .legend-note {
-  margin-top: 6px;
-  font-size: 0.62rem;
-  color: var(--text-muted);
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
 }
 
 /* Custom Marker Styling on Leaflet */
@@ -440,33 +496,31 @@ html, body {
   border: none;
 }
 .marker-svg {
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
   cursor: pointer;
   transition: transform 0.2s ease;
 }
 .marker-svg:hover, .marker-svg:focus {
-  transform: scale(1.3);
+  transform: scale(1.35);
 }
 
-/* Pulsing ring for warning/danger stations */
 .pulsing-marker {
   animation: marker-pulse 1.8s infinite ease-out;
 }
 @keyframes marker-pulse {
   0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(244, 63, 94, 0.8)); }
-  50% { transform: scale(1.25); filter: drop-shadow(0 0 10px rgba(244, 63, 94, 1)); }
+  50% { transform: scale(1.25); filter: drop-shadow(0 0 8px rgba(244, 63, 94, 1)); }
   100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(244, 63, 94, 0.8)); }
 }
 
-/* Station Details Sidebar (Right Column) */
+/* ── Station Details Command Panel (Right Column) ────────────────────────── */
 .station-panel {
-  background: var(--bg-surface);
+  background: var(--bg-canvas);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   max-height: calc(100vh - var(--header-height) - 40px);
-  padding: 16px;
-  gap: 14px;
+  padding: 20px;
+  gap: 16px;
 }
 
 /* Station Header Card */
@@ -474,38 +528,41 @@ html, body {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding-bottom: 12px;
+  padding-bottom: 14px;
   border-bottom: 1px solid var(--border-subtle);
-  gap: 12px;
+  gap: 14px;
 }
 
 .station-river-tag {
-  font-size: 0.72rem;
-  color: var(--text-accent);
+  font-size: 11px;
+  color: var(--color-lime-surveyor);
+  font-family: var(--font-mono);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
 }
 
 .station-name-title {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--text-main);
-  margin: 2px 0 4px;
+  letter-spacing: var(--tracking-editorial);
+  margin: 4px 0 6px;
+  line-height: 1.1;
 }
 
 .station-geo-meta {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  font-size: 0.72rem;
-  color: var(--text-muted);
+  gap: 3px;
+  font-size: 12px;
+  color: var(--text-secondary);
   font-family: var(--font-mono);
 }
 
 .status-unverified-tag {
-  color: #fdba74;
-  font-size: 0.68rem;
+  color: var(--risk-watch);
+  font-size: 11px;
   font-weight: 600;
 }
 
@@ -514,10 +571,12 @@ html, body {
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  border-radius: var(--radius-md);
-  font-weight: 800;
-  font-size: 0.85rem;
+  border-radius: var(--radius-tags);
+  font-weight: 700;
+  font-size: 12px;
+  font-family: var(--font-mono);
   letter-spacing: 0.04em;
+  text-transform: uppercase;
   background: var(--risk-normal-bg);
   color: var(--risk-normal);
   border: 1px solid var(--risk-normal);
@@ -527,8 +586,8 @@ html, body {
 .alert-narrative-card {
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 12px;
+  border-radius: var(--radius-cards);
+  padding: 14px;
 }
 
 .narrative-header {
@@ -539,57 +598,64 @@ html, body {
 }
 
 .narrative-heading {
-  font-size: 0.82rem;
+  font-size: 11px;
+  font-family: var(--font-mono);
   font-weight: 700;
   text-transform: uppercase;
-  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  color: var(--color-lime-surveyor);
 }
 
 .narrative-text {
-  font-size: 0.82rem;
-  line-height: 1.4;
+  font-size: 13px;
+  line-height: 1.5;
   color: var(--text-main);
 }
 
 .explainability-block {
-  margin-top: 10px;
-  padding-top: 8px;
-  border-top: 1px dashed var(--border-subtle);
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
 }
 
 .explain-title {
-  font-size: 0.72rem;
+  font-size: 11px;
+  font-family: var(--font-mono);
   font-weight: 700;
-  color: var(--text-accent);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .explain-factors-list {
   padding-left: 18px;
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  line-height: 1.4;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-main);
+  line-height: 1.5;
 }
 
-/* Tabs */
+/* Panel Tabs */
 .panel-tabs {
   display: flex;
   border-bottom: 1px solid var(--border-subtle);
-  gap: 4px;
+  gap: 6px;
 }
 
 .panel-tab {
   background: transparent;
   border: none;
   color: var(--text-secondary);
-  font-size: 0.78rem;
+  font-size: 12px;
+  font-family: var(--font-mono);
   font-weight: 600;
-  padding: 8px 12px;
+  padding: 8px 14px;
   cursor: pointer;
   border-bottom: 2px solid transparent;
   transition: all 0.15s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .panel-tab:hover {
@@ -597,35 +663,38 @@ html, body {
 }
 
 .panel-tab.active {
-  color: var(--text-accent);
-  border-bottom-color: var(--text-accent);
+  color: var(--color-lime-surveyor);
+  border-bottom-color: var(--color-lime-surveyor);
 }
 
 /* Hydrograph Container */
 .hydrograph-container {
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 12px;
+  border-radius: var(--radius-cards);
+  padding: 14px;
   margin-top: 10px;
 }
 
 .chart-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
+  align-items: baseline;
+  margin-bottom: 10px;
 }
 
 .chart-title {
-  font-size: 0.82rem;
+  font-size: 13px;
+  font-family: var(--font-mono);
   font-weight: 700;
-  color: var(--text-secondary);
+  color: var(--text-main);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .chart-units {
-  font-size: 0.72rem;
-  color: var(--text-muted);
+  font-size: 11px;
+  color: var(--text-secondary);
   font-family: var(--font-mono);
 }
 
@@ -638,32 +707,33 @@ html, body {
 .hydrograph-legend-strip {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 8px;
-  padding-top: 6px;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 8px;
   border-top: 1px solid var(--border-subtle);
-  font-size: 0.68rem;
+  font-size: 11px;
+  font-family: var(--font-mono);
   color: var(--text-secondary);
 }
 
 .hydro-leg-item {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
 
 .leg-color-box {
   width: 10px;
   height: 10px;
-  border-radius: 2px;
+  border-radius: 1px;
 }
-.leg-obs  { background: #94a3b8; }
-.leg-p50  { background: #38bdf8; }
-.leg-band { background: rgba(56, 189, 248, 0.35); }
-.leg-warn { background: #f59e0b; }
-.leg-dang { background: #f43f5e; }
+.leg-obs  { background: var(--color-drift-ash); }
+.leg-p50  { background: var(--color-lime-surveyor); }
+.leg-band { background: rgba(235, 252, 114, 0.35); }
+.leg-warn { background: var(--color-marsh-olive); }
+.leg-dang { background: var(--risk-danger); }
 
-/* Metrics Grid */
+/* Multi-Horizon Telemetry Metrics Grid */
 .forecast-metrics-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -674,33 +744,36 @@ html, body {
 .metric-card {
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  padding: 8px 10px;
+  border-radius: var(--radius-cards);
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
 }
 
 .metric-label {
-  font-size: 0.68rem;
-  color: var(--text-muted);
+  font-size: 11px;
+  color: var(--text-secondary);
   text-transform: uppercase;
+  font-family: var(--font-mono);
   font-weight: 600;
+  letter-spacing: 0.04em;
 }
 
 .metric-value {
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   font-weight: 700;
   font-family: var(--font-mono);
   color: var(--text-main);
-  margin: 2px 0;
+  margin: 4px 0 2px;
 }
 
 .metric-sub {
-  font-size: 0.65rem;
+  font-size: 11px;
   color: var(--text-secondary);
+  font-family: var(--font-mono);
 }
 
-/* WQI Tab */
+/* ── Water Quality (WQI) Tab ─────────────────────────────────────────────── */
 .wqi-summary-block {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -711,8 +784,8 @@ html, body {
 .wqi-score-card, .cpcb-class-card {
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 12px;
+  border-radius: var(--radius-cards);
+  padding: 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -720,10 +793,12 @@ html, body {
 }
 
 .wqi-sublabel, .cpcb-sublabel {
-  font-size: 0.7rem;
-  color: var(--text-muted);
+  font-size: 11px;
+  color: var(--text-secondary);
   text-transform: uppercase;
+  font-family: var(--font-mono);
   font-weight: 600;
+  letter-spacing: 0.04em;
 }
 
 .wqi-value-display {
@@ -736,22 +811,25 @@ html, body {
   font-size: 2.2rem;
   font-weight: 800;
   font-family: var(--font-mono);
-  color: var(--text-accent);
+  color: var(--color-lime-surveyor);
 }
 
 .wqi-scale {
   font-size: 0.9rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-family: var(--font-mono);
 }
 
 .wqi-status-badge {
-  font-size: 0.72rem;
+  font-size: 11px;
+  font-family: var(--font-mono);
   font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 999px;
+  padding: 3px 8px;
+  border-radius: var(--radius-tags);
   background: var(--risk-normal-bg);
-  color: var(--risk-normal);
+  color: var(--color-lime-surveyor);
+  border: 1px solid var(--color-lime-surveyor);
+  letter-spacing: 0.03em;
 }
 
 .cpcb-class-display {
@@ -761,52 +839,59 @@ html, body {
 .cpcb-class-letter {
   font-size: 2.2rem;
   font-weight: 800;
-  color: #38bdf8;
+  color: var(--text-main);
   font-family: var(--font-mono);
 }
 
 .cpcb-desc {
-  font-size: 0.7rem;
+  font-size: 11px;
   color: var(--text-secondary);
-  line-height: 1.3;
+  line-height: 1.4;
+  font-family: var(--font-sans);
 }
 
-/* Hotspot Banner */
+/* Hotspot Alert Banner */
 .hotspot-banner {
-  background: #3b1111;
-  border: 1px solid #991b1b;
-  border-radius: var(--radius-md);
-  padding: 10px 12px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid var(--risk-danger);
+  border-radius: var(--radius-cards);
+  padding: 12px 14px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-top: 10px;
 }
 
 .hotspot-icon {
   font-size: 1.4rem;
+  color: var(--risk-danger);
 }
 
 .hotspot-text strong {
-  font-size: 0.78rem;
-  color: #fca5a5;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--risk-danger);
   display: block;
+  letter-spacing: 0.03em;
 }
 
 .hotspot-text p {
-  font-size: 0.7rem;
-  color: #fecaca;
+  font-size: 12px;
+  color: var(--text-main);
+  margin-top: 2px;
 }
 
-/* Parameters Grid */
+/* Parameter Grid */
 .wq-params-section {
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
 .params-title {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--color-lime-surveyor);
   text-transform: uppercase;
+  letter-spacing: 0.05em;
   margin-bottom: 8px;
 }
 
@@ -819,36 +904,39 @@ html, body {
 .param-card {
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  padding: 6px 8px;
+  border-radius: var(--radius-cards);
+  padding: 8px 10px;
   display: flex;
   flex-direction: column;
 }
 
 .param-name {
-  font-size: 0.65rem;
-  color: var(--text-muted);
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  text-transform: uppercase;
 }
 
 .param-val {
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-weight: 700;
   font-family: var(--font-mono);
   color: var(--text-main);
-  margin: 2px 0;
+  margin: 3px 0 1px;
 }
 
 .param-std {
-  font-size: 0.6rem;
-  color: var(--text-secondary);
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
 }
 
-/* Drought Tab */
+/* ── Drought & Low-Flow Tab ──────────────────────────────────────────────── */
 .drought-overview-card {
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 12px;
+  border-radius: var(--radius-cards);
+  padding: 14px;
   margin-top: 10px;
 }
 
@@ -856,78 +944,87 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .drought-status-title {
-  font-size: 0.75rem;
-  color: var(--text-muted);
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
   text-transform: uppercase;
+  letter-spacing: 0.04em;
   font-weight: 600;
 }
 
 .drought-severity-pill {
-  font-size: 0.72rem;
-  font-weight: 800;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 700;
   padding: 3px 8px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-tags);
   background: var(--risk-normal-bg);
-  color: var(--risk-normal);
+  color: var(--color-lime-surveyor);
+  border: 1px solid var(--color-lime-surveyor);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .drought-summary-text {
-  font-size: 0.78rem;
-  color: var(--text-secondary);
-  line-height: 1.35;
+  font-size: 12px;
+  color: var(--text-main);
+  line-height: 1.45;
 }
 
-/* SPI Section */
+/* SPI Telemetry Section */
 .spi-section {
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 12px;
+  border-radius: var(--radius-cards);
+  padding: 14px;
   margin-top: 10px;
 }
 
 .spi-title {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--color-lime-surveyor);
   text-transform: uppercase;
-  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
 }
 
 .spi-bars-container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .spi-row {
   display: grid;
-  grid-template-columns: 85px 1fr 45px;
+  grid-template-columns: 85px 1fr 50px;
   align-items: center;
-  gap: 8px;
-  font-size: 0.75rem;
+  gap: 10px;
+  font-size: 12px;
 }
 
 .spi-scale-label {
+  font-family: var(--font-mono);
   font-weight: 600;
   color: var(--text-secondary);
 }
 
 .spi-bar-track {
-  height: 8px;
+  height: 6px;
   background: var(--border-subtle);
-  border-radius: 999px;
+  border-radius: var(--radius-tags);
   overflow: hidden;
   position: relative;
 }
 
 .spi-bar-fill {
   height: 100%;
-  background: var(--text-accent);
-  border-radius: 999px;
+  background: var(--color-lime-surveyor);
+  border-radius: var(--radius-tags);
   transition: width 0.3s ease;
 }
 
@@ -940,17 +1037,18 @@ html, body {
 
 .spi-footer-note {
   display: block;
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  margin-top: 8px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  margin-top: 10px;
 }
 
-/* Q90 Stress Card */
+/* Q90 Stress Sensor Card */
 .q90-stress-card {
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 12px;
+  border-radius: var(--radius-cards);
+  padding: 14px;
   margin-top: 10px;
 }
 
@@ -958,29 +1056,34 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .q90-label {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 700;
   color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .q90-badge {
-  font-size: 0.7rem;
+  font-size: 11px;
+  font-family: var(--font-mono);
   font-weight: 700;
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
+  padding: 2px 7px;
+  border-radius: var(--radius-tags);
   background: var(--risk-normal-bg);
-  color: var(--risk-normal);
+  color: var(--color-lime-surveyor);
+  border: 1px solid var(--color-lime-surveyor);
 }
 
 .q90-details {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  font-size: 0.72rem;
+  gap: 5px;
+  font-size: 12px;
   color: var(--text-secondary);
 }
 
@@ -994,57 +1097,62 @@ html, body {
   color: var(--text-main);
 }
 
-/* 30-Day Outlook */
+/* 30-Day Outlook Trajectory */
 .drought-outlook-box {
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 12px;
+  border-radius: var(--radius-cards);
+  padding: 14px;
   margin-top: 10px;
 }
 
 .outlook-title {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--color-lime-surveyor);
   text-transform: uppercase;
-  margin-bottom: 6px;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
 }
 
 .outlook-indicator {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 4px;
+  gap: 8px;
+  margin-bottom: 6px;
 }
 
 .outlook-arrow {
   font-size: 1.1rem;
   font-weight: 800;
-  color: var(--text-accent);
+  color: var(--color-lime-surveyor);
 }
 
 .outlook-badge {
-  font-size: 0.75rem;
-  font-weight: 800;
-  padding: 2px 8px;
-  border-radius: var(--radius-sm);
-  background: rgba(56, 189, 248, 0.15);
-  color: var(--text-accent);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-tags);
+  background: var(--risk-normal-bg);
+  color: var(--color-lime-surveyor);
+  border: 1px solid var(--color-lime-surveyor);
+  letter-spacing: 0.04em;
 }
 
 .outlook-text {
-  font-size: 0.75rem;
+  font-size: 12px;
   color: var(--text-secondary);
-  line-height: 1.35;
+  line-height: 1.45;
 }
 
-/* Footer */
+/* ── Minimalist Terminal Footer ──────────────────────────────────────────── */
 .app-footer {
-  background: var(--bg-surface);
+  background: var(--bg-canvas);
   border-top: 1px solid var(--border-subtle);
-  padding: 10px 24px;
-  font-size: 0.72rem;
-  color: var(--text-muted);
+  padding: 14px 24px;
+  font-size: 12px;
+  color: var(--text-secondary);
 }
 
 .footer-container {
@@ -1055,24 +1163,33 @@ html, body {
   margin: 0 auto;
 }
 
+.footer-meta strong {
+  color: var(--text-main);
+}
+
 .footer-subtext {
-  font-size: 0.65rem;
-  color: var(--text-muted);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--color-drift-ash);
+  margin-top: 2px;
 }
 
 .clock-display {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  color: var(--text-secondary);
+  font-size: 11px;
+  color: var(--color-lime-surveyor);
+  border: 1px solid var(--border-subtle);
+  padding: 3px 8px;
+  border-radius: var(--radius-tags);
 }
 
-/* Responsive Media Queries */
+/* ── Responsive Viewport Adjustments ─────────────────────────────────────── */
 @media (max-width: 1024px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
   .map-viewport {
-    min-height: 420px;
+    min-height: 440px;
   }
   .station-panel {
     max-height: none;

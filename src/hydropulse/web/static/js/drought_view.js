@@ -16,18 +16,22 @@ export class DroughtView {
     if (severityPill) {
       severityPill.textContent = severity;
       if (severity === 'NORMAL') {
-        severityPill.style.background = 'rgba(16, 185, 129, 0.2)';
-        severityPill.style.color = '#10b981';
+        severityPill.style.background = 'rgba(235, 252, 114, 0.12)';
+        severityPill.style.color = '#ebfc72';
+        severityPill.style.border = '1px solid #ebfc72';
       } else if (severity === 'WATCH') {
-        severityPill.style.background = 'rgba(245, 158, 11, 0.2)';
+        severityPill.style.background = 'rgba(245, 158, 11, 0.15)';
         severityPill.style.color = '#f59e0b';
+        severityPill.style.border = '1px solid #f59e0b';
       } else if (severity === 'MODERATE') {
-        severityPill.style.background = 'rgba(234, 88, 12, 0.25)';
-        severityPill.style.color = '#ea580c';
+        severityPill.style.background = 'rgba(244, 63, 94, 0.15)';
+        severityPill.style.color = '#f43f5e';
+        severityPill.style.border = '1px solid #f43f5e';
       } else {
         // Severe / Extreme
-        severityPill.style.background = 'rgba(244, 63, 94, 0.25)';
-        severityPill.style.color = '#f43f5e';
+        severityPill.style.background = 'rgba(239, 68, 68, 0.18)';
+        severityPill.style.color = '#ef4444';
+        severityPill.style.border = '1px solid #ef4444';
       }
     }
 
@@ -59,11 +63,11 @@ export class DroughtView {
         const pct = normalizeSpiPercent(spiVal);
         fillEl.style.width = `${pct}%`;
         if (typeof spiVal === 'number' && spiVal <= -1.5) {
-          fillEl.style.background = '#f43f5e'; // Severe
+          fillEl.style.background = '#ef4444'; // Severe
         } else if (typeof spiVal === 'number' && spiVal <= -1.0) {
           fillEl.style.background = '#f59e0b'; // Moderate
         } else {
-          fillEl.style.background = '#38bdf8'; // Normal/Wet
+          fillEl.style.background = '#ebfc72'; // Normal/Wet (Lime Surveyor)
         }
       }
     };
@@ -80,12 +84,14 @@ export class DroughtView {
     if (q90Badge) {
       if (droughtData.is_low_flow_stress) {
         q90Badge.textContent = 'LOW-FLOW DEFICIT';
-        q90Badge.style.background = 'rgba(244, 63, 94, 0.2)';
-        q90Badge.style.color = '#f43f5e';
+        q90Badge.style.background = 'rgba(239, 68, 68, 0.15)';
+        q90Badge.style.color = '#ef4444';
+        q90Badge.style.border = '1px solid #ef4444';
       } else {
-        q90Badge.textContent = 'Adequate Baseflow';
-        q90Badge.style.background = 'rgba(16, 185, 129, 0.2)';
-        q90Badge.style.color = '#10b981';
+        q90Badge.textContent = 'ADEQUATE BASEFLOW';
+        q90Badge.style.background = 'rgba(235, 252, 114, 0.12)';
+        q90Badge.style.color = '#ebfc72';
+        q90Badge.style.border = '1px solid #ebfc72';
       }
     }
 

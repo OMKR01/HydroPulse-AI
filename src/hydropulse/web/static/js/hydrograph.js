@@ -71,45 +71,45 @@ export class HydrographChart {
       {
         label: 'Observed / Reanalysis',
         data: obsValues,
-        borderColor: '#94a3b8',
-        backgroundColor: '#94a3b8',
-        borderWidth: 2,
+        borderColor: '#84837b',
+        backgroundColor: '#84837b',
+        borderWidth: 1.8,
         pointRadius: 2,
-        tension: 0.2,
+        tension: 0.15,
       },
-      // P50 Median Forecast Line
+      // P50 Median Forecast Line (Lime Surveyor)
       {
         label: 'Forecast (P50)',
         data: p50Values,
-        borderColor: '#38bdf8',
-        backgroundColor: '#38bdf8',
-        borderWidth: 2.5,
+        borderColor: '#ebfc72',
+        backgroundColor: '#ebfc72',
+        borderWidth: 2.2,
         pointRadius: 3,
         pointHoverRadius: 5,
-        tension: 0.2,
+        tension: 0.15,
       },
       // P90 Upper Bound (Fills down to P10)
       {
         label: 'P90 (Upper Bound)',
         data: p90Values,
-        borderColor: 'rgba(56, 189, 248, 0.4)',
+        borderColor: 'rgba(235, 252, 114, 0.45)',
         borderWidth: 1,
         borderDash: [4, 4],
         pointRadius: 0,
         fill: '+1', // Fills to P10 dataset below
-        backgroundColor: 'rgba(56, 189, 248, 0.18)',
-        tension: 0.2,
+        backgroundColor: 'rgba(235, 252, 114, 0.12)',
+        tension: 0.15,
       },
       // P10 Lower Bound
       {
         label: 'P10 (Lower Bound)',
         data: p10Values,
-        borderColor: 'rgba(56, 189, 248, 0.4)',
+        borderColor: 'rgba(235, 252, 114, 0.45)',
         borderWidth: 1,
         borderDash: [4, 4],
         pointRadius: 0,
         fill: false,
-        tension: 0.2,
+        tension: 0.15,
       },
     ];
 
@@ -118,7 +118,7 @@ export class HydrographChart {
       datasets.push({
         label: `Warning Level (${warnThreshold} m³/s)`,
         data: labels.map(() => warnThreshold),
-        borderColor: '#f59e0b',
+        borderColor: '#bacd31',
         borderWidth: 1.5,
         borderDash: [6, 4],
         pointRadius: 0,
@@ -130,7 +130,7 @@ export class HydrographChart {
       datasets.push({
         label: `Danger Level (${dangThreshold} m³/s)`,
         data: labels.map(() => dangThreshold),
-        borderColor: '#f43f5e',
+        borderColor: '#ef4444',
         borderWidth: 1.5,
         borderDash: [6, 4],
         pointRadius: 0,
@@ -151,11 +151,13 @@ export class HydrographChart {
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: 'rgba(16, 26, 40, 0.95)',
-            borderColor: '#38597e',
+            backgroundColor: 'rgba(19, 20, 14, 0.96)',
+            borderColor: '#404040',
             borderWidth: 1,
-            titleColor: '#f0f4f8',
-            bodyColor: '#94a3b8',
+            titleColor: '#f4f3e8',
+            bodyColor: '#84837b',
+            titleFont: { family: 'JetBrains Mono', size: 12 },
+            bodyFont: { family: 'JetBrains Mono', size: 12 },
             callbacks: {
               label(context) {
                 if (context.raw === null || context.raw === undefined) return null;
@@ -167,9 +169,9 @@ export class HydrographChart {
         },
         scales: {
           x: {
-            grid: { color: 'rgba(36, 59, 85, 0.4)' },
+            grid: { color: 'rgba(64, 64, 64, 0.4)' },
             ticks: {
-              color: '#94a3b8',
+              color: '#84837b',
               font: { family: 'JetBrains Mono', size: 10 },
               maxRotation: 45,
             },
@@ -178,12 +180,12 @@ export class HydrographChart {
             title: {
               display: true,
               text: 'Discharge (m³/s)',
-              color: '#94a3b8',
-              font: { family: 'Inter', size: 11 },
+              color: '#84837b',
+              font: { family: 'JetBrains Mono', size: 11 },
             },
-            grid: { color: 'rgba(36, 59, 85, 0.4)' },
+            grid: { color: 'rgba(64, 64, 64, 0.4)' },
             ticks: {
-              color: '#94a3b8',
+              color: '#84837b',
               font: { family: 'JetBrains Mono', size: 10 },
             },
           },

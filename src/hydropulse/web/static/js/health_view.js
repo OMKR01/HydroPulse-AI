@@ -31,17 +31,21 @@ export class HealthView {
       statusBadge.textContent = category.toUpperCase();
 
       if (rawScore <= 25) {
-        statusBadge.style.background = 'rgba(16, 185, 129, 0.2)';
-        statusBadge.style.color = '#10b981';
+        statusBadge.style.background = 'rgba(235, 252, 114, 0.15)';
+        statusBadge.style.color = '#ebfc72';
+        statusBadge.style.border = '1px solid #ebfc72';
       } else if (rawScore <= 50) {
-        statusBadge.style.background = 'rgba(56, 189, 248, 0.2)';
-        statusBadge.style.color = '#38bdf8';
+        statusBadge.style.background = 'rgba(186, 205, 49, 0.15)';
+        statusBadge.style.color = '#bacd31';
+        statusBadge.style.border = '1px solid #bacd31';
       } else if (rawScore <= 75) {
-        statusBadge.style.background = 'rgba(245, 158, 11, 0.2)';
+        statusBadge.style.background = 'rgba(245, 158, 11, 0.15)';
         statusBadge.style.color = '#f59e0b';
+        statusBadge.style.border = '1px solid #f59e0b';
       } else {
-        statusBadge.style.background = 'rgba(244, 63, 94, 0.2)';
-        statusBadge.style.color = '#f43f5e';
+        statusBadge.style.background = 'rgba(239, 68, 68, 0.15)';
+        statusBadge.style.color = '#ef4444';
+        statusBadge.style.border = '1px solid #ef4444';
       }
     }
 
