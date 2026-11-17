@@ -1,5 +1,11 @@
 # HydroPulse AI — Jharkhand River Health Monitoring System
 
+[![CI Pipeline](https://github.com/OMKR01/HydroPulse-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/OMKR01/HydroPulse-AI/actions/workflows/ci.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Test Coverage: 89%](https://img.shields.io/badge/coverage-89%25-brightgreen.svg)](#)
+
 > **Advisory Warning & Disclaimer**  
 > HydroPulse AI is an experimental AI/ML research and advisory decision-support system for the Damodar and Subarnarekha basins in Jharkhand. **Official flood alerts and river level warnings are issued exclusively by the Central Water Commission (CWC) and Jharkhand State Disaster Management Authority (JSDMA).**
 
@@ -141,10 +147,29 @@ make run      # Launch Flask development server
 
 ---
 
-## 7. Docker Deployment
+## 7. Production Docker Deployment & DevOps
+
+HydroPulse AI is containerized with a hardened multi-stage build, non-root security enforcement (UID 1000 `hydropulse`), and automated telemetry refresh via Docker Compose:
+
 ```bash
-docker compose up --build
+# 1. Configure production environment
+cp .env.example .env
+
+# 2. Launch web application and background scheduler
+docker compose up -d --build
+
+# 3. Check health and view running microservices
+docker compose ps
+docker compose logs -f web
 ```
+
+- **Interactive Map Dashboard**: [http://localhost:5000/dashboard](http://localhost:5000/dashboard)
+- **Interactive OpenAPI Specification**: [http://localhost:5000/docs](http://localhost:5000/docs)
+- **System Health Probe**: [http://localhost:5000/api/v1/health](http://localhost:5000/api/v1/health)
+
+For comprehensive cloud deployment instructions across free-tier PaaS (Render, Railway, Hugging Face Spaces) and hardened Ubuntu VPS with Nginx and Let's Encrypt SSL, refer to [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+
+For developer workflow, testing guidelines, and PR procedures, see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ---
 

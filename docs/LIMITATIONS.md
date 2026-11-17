@@ -62,3 +62,8 @@ In strict accordance with the project integrity principles, all assumptions, dat
 
 
 
+## 13. DevOps, Packaging & Container Concurrency (Phase 8)
+- **Single-Node SQLite Concurrency Limits**: The default local storage relies on SQLite. While SQLite Write-Ahead Logging (`PRAGMA journal_mode=WAL;`) allows concurrent readers alongside a writer, high-frequency simultaneous writes across multiple Gunicorn workers or scheduler threads can trigger `database is locked` operational timeouts. For multi-replica cloud clusters, production deployments should switch to PostgreSQL by overriding `DATABASE_URL`.
+- **Memory Footprint in Low-RAM Containers**: Loading PyTorch and LightGBM model weights into memory requires ~180–250 MB per worker process. On cloud free-tiers with 512 MB RAM ceilings (e.g., Render free tier), running more than 2 Gunicorn worker processes can cause container OOM (Out Of Memory) terminations. Default configurations pin workers to 2 with 4 threads for optimal throughput under 512 MB.
+- **Container Storage Ephemerality**: In stateless container environments (e.g., standard serverless containers without volume attachments), newly ingested weather forecasts and database writes are wiped on container restart. Production configurations must mount persistent volumes to `/app/data` and `/app/reports` or use external object/relational stores.
+- **Asynchronous Telemetry Staleness Handling**: If the scheduler service (`hydropulse_scheduler`) experiences container disruption or network downtime with upstream APIs (Open-Meteo), the web API continues serving the latest cached observations. Per AGENTS.md rule 4, staleness is explicitly indicated in payloads (`is_stale: true`) rather than silently masked.

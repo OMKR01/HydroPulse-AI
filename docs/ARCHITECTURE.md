@@ -101,3 +101,48 @@ graph TD
      - `health_view.js`: Weighted-Arithmetic WQI gauge, statutory CPCB Designated-Best-Use classes A–E, and industrial effluent hotspot indicators.
      - `drought_view.js`: Multi-scalar SPI-1/3/6 progress bars, $Q_{90}$ low-flow status, and 30-day forward outlook trajectory.
      - `app.js`: Master application coordinator handling bilingual dictionaries, event wiring, and 60-second live polling.
+
+
+## 7. Deployment & DevOps Architecture (Phase 8)
+
+```mermaid
+flowchart TD
+    subgraph Host["Production Host / Cloud VM"]
+        Nginx["Nginx Reverse Proxy<br/>(Port 80/443, SSL Termination, Gzip)"]
+        
+        subgraph DockerCompose["Docker Compose Microservice Topology"]
+            subgraph WebContainer["Service: web (Gunicorn WSGI)"]
+                Flask["Flask 3 Application<br/>(Port 5000, Non-Root UID 1000)"]
+                HealthCheck["HEALTHCHECK<br/>curl /api/v1/health"]
+                Flask --- HealthCheck
+            end
+            
+            subgraph SchedContainer["Service: scheduler (APScheduler Daemon)"]
+                Worker["Refresh Daemon<br/>(refresh.py --daemon --interval-hours 6)"]
+                SignalHandler["Signal Handler<br/>(SIGINT / SIGTERM)"]
+                Worker --- SignalHandler
+            end
+            
+            subgraph Storage["Persistent Host Volumes"]
+                DataVol[("./data -> /app/data<br/>SQLite WAL & Parquet)")]
+                ReportsVol[("./reports -> /app/reports<br/>Metrics & Validation Plots)")]
+            end
+            
+            WebContainer <-->|Read / Write| DataVol
+            WebContainer <-->|Read Metrics| ReportsVol
+            SchedContainer -->|Periodic Ingest| DataVol
+            SchedContainer -->|Audit Trail| ReportsVol
+        end
+        
+        Nginx -->|proxy_pass :5000| WebContainer
+    end
+    
+    Browser["Client Browser / API Consumer"] -->|HTTPS| Nginx
+    SchedContainer -->|Outbound Ingestion| Upstream["Open-Meteo & India-WRIS APIs"]
+```
+
+### DevOps Key Features
+- **Multi-Stage Build**: Isolates build tools (`gcc`, `build-essential`) in `builder` stage; production `runner` image retains only Python runtime and unprivileged non-root user `hydropulse` (UID/GID 1000).
+- **Asynchronous Background Scheduler**: Ingestion pipeline operates in a dedicated worker container (`scheduler`), eliminating blocking I/O on web request workers.
+- **Automated CI/CD**: GitHub Actions pipeline executes Ruff linting, formatting checks, Pytest with $\ge 80\%$ coverage enforcement, and Docker container build smoke tests on every push and PR.
+- **Resilience & Graceful Shutdown**: Schedulers and web workers trap `SIGINT` and `SIGTERM` signals for clean disconnection and WAL journal flushing.
