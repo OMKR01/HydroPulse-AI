@@ -45,7 +45,11 @@ def test_load_historical_events_contract():
         assert len(ev["stations_affected"]) >= 1
         assert ev["source_url"].startswith("http"), f"Invalid source URL: {ev['source_url']}"
         assert pd.to_datetime(ev["start_date"]) <= pd.to_datetime(ev["end_date"])
-        assert pd.to_datetime(ev["start_date"]) <= pd.to_datetime(ev["peak_date"]) <= pd.to_datetime(ev["end_date"])
+        assert (
+            pd.to_datetime(ev["start_date"])
+            <= pd.to_datetime(ev["peak_date"])
+            <= pd.to_datetime(ev["end_date"])
+        )
 
 
 def test_load_historical_events_invalid_file_raises():
@@ -87,11 +91,13 @@ def test_evaluate_single_event_hit_and_lead_time():
     }
 
     dates = pd.date_range("2021-08-01", "2021-08-05", freq="D")
-    df = pd.DataFrame({
-        "date": dates,
-        "discharge": [50.0, 180.0, 300.0, 160.0, 60.0],
-        "glofas_discharge": [45.0, 160.0, 260.0, 140.0, 55.0],
-    })
+    df = pd.DataFrame(
+        {
+            "date": dates,
+            "discharge": [50.0, 180.0, 300.0, 160.0, 60.0],
+            "glofas_discharge": [45.0, 160.0, 260.0, 140.0, 55.0],
+        }
+    )
 
     thresholds = {"watch": 150.0, "warning": 200.0, "danger": 280.0}
     res = evaluate_single_event(event, "damodar_bokaro", df, thresholds)
@@ -123,11 +129,13 @@ def test_evaluate_single_event_miss():
 
     dates = pd.date_range("2021-08-01", "2021-08-03", freq="D")
     # Low discharge
-    df = pd.DataFrame({
-        "date": dates,
-        "discharge": [40.0, 50.0, 45.0],
-        "glofas_discharge": [35.0, 42.0, 38.0],
-    })
+    df = pd.DataFrame(
+        {
+            "date": dates,
+            "discharge": [40.0, 50.0, 45.0],
+            "glofas_discharge": [35.0, 42.0, 38.0],
+        }
+    )
 
     thresholds = {"watch": 150.0, "warning": 200.0, "danger": 280.0}
     res = evaluate_single_event(event, "subarnarekha_jamshedpur", df, thresholds)
@@ -145,14 +153,18 @@ def test_compute_false_alarm_analysis():
     discharge_pred = np.full(30, 20.0)
     discharge_pred[5] = 165.0  # Spurious prediction above 150 threshold
 
-    df = pd.DataFrame({
-        "date": dates,
-        "discharge": discharge,
-        "discharge_pred": discharge_pred,
-    })
+    df = pd.DataFrame(
+        {
+            "date": dates,
+            "discharge": discharge,
+            "discharge_pred": discharge_pred,
+        }
+    )
 
     event_windows = [("2021-08-01", "2021-08-05")]
-    res = compute_false_alarm_analysis("damodar_ramgarh", df, threshold=150.0, event_windows=event_windows)
+    res = compute_false_alarm_analysis(
+        "damodar_ramgarh", df, threshold=150.0, event_windows=event_windows
+    )
 
     assert res["non_event_days"] == 30
     assert res["false_positives"] == 1

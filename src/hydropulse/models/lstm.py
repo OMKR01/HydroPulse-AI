@@ -32,6 +32,7 @@ try:
     import torch
     import torch.nn as nn
     from torch.utils.data import DataLoader, Dataset
+
     TORCH_AVAILABLE = True
 except (ImportError, OSError):
     torch = None  # type: ignore
@@ -55,8 +56,13 @@ LEARNING_RATE = 1e-3
 RANDOM_SEED = 42
 
 FEATURE_EXCLUDE = {
-    "date", "station_id", "provenance", "is_interpolated",
-    "is_outlier_precip", "is_outlier_discharge", "outlier_reason",
+    "date",
+    "station_id",
+    "provenance",
+    "is_interpolated",
+    "is_outlier_precip",
+    "is_outlier_discharge",
+    "outlier_reason",
     "discharge_m3s",
     *[f"target_discharge_h{h}" for h in range(1, FORECAST_HORIZONS + 1)],
 }
@@ -76,8 +82,7 @@ def _get_device() -> torch.device:
 
 def _select_features(df: pd.DataFrame) -> list[str]:
     return [
-        c for c in df.columns
-        if c not in FEATURE_EXCLUDE and pd.api.types.is_numeric_dtype(df[c])
+        c for c in df.columns if c not in FEATURE_EXCLUDE and pd.api.types.is_numeric_dtype(df[c])
     ]
 
 
@@ -127,17 +132,21 @@ class DischargeSequenceDataset(Dataset):
         target_cols = [f"target_discharge_h{h}" for h in range(1, FORECAST_HORIZONS + 1)]
         available_targets = [c for c in target_cols if c in df.columns]
 
-        df_clean = df[feature_cols + available_targets + (["station_id"] if station_id_map else [])].copy()
+        df_clean = df[
+            feature_cols + available_targets + (["station_id"] if station_id_map else [])
+        ].copy()
         df_clean[feature_cols] = df_clean[feature_cols].astype(float).fillna(0.0)
         df_clean[available_targets] = df_clean[available_targets].astype(float)
 
         self.X_arr = df_clean[feature_cols].to_numpy(dtype=np.float32)
-        self.y_arr = df_clean[available_targets].to_numpy(dtype=np.float32) if available_targets else None
+        self.y_arr = (
+            df_clean[available_targets].to_numpy(dtype=np.float32) if available_targets else None
+        )
 
         if station_id_map and "station_id" in df.columns:
-            self.station_ids = np.array([
-                station_id_map.get(str(s), 0) for s in df["station_id"]
-            ], dtype=np.int64)
+            self.station_ids = np.array(
+                [station_id_map.get(str(s), 0) for s in df["station_id"]], dtype=np.int64
+            )
         else:
             self.station_ids = None
 
@@ -145,11 +154,11 @@ class DischargeSequenceDataset(Dataset):
         return max(0, len(self.X_arr) - self.seq_len)
 
     def __getitem__(self, idx: int) -> tuple[Any, ...]:
-        x = torch.from_numpy(self.X_arr[idx: idx + self.seq_len])           # (seq_len, n_features)
+        x = torch.from_numpy(self.X_arr[idx : idx + self.seq_len])  # (seq_len, n_features)
         target_idx = idx + self.seq_len - 1
 
         if self.y_arr is not None and target_idx < len(self.y_arr):
-            y = torch.from_numpy(self.y_arr[target_idx])                     # (7,)
+            y = torch.from_numpy(self.y_arr[target_idx])  # (7,)
         else:
             y = torch.full((FORECAST_HORIZONS,), float("nan"))
 
@@ -165,8 +174,13 @@ class DischargeSequenceDataset(Dataset):
 class _LSTMNet(nn.Module):
     """Per-station LSTM: input features -> hidden -> 7-horizon output."""
 
-    def __init__(self, input_size: int, hidden_size: int = HIDDEN_SIZE,
-                 num_layers: int = NUM_LAYERS, dropout: float = DROPOUT) -> None:
+    def __init__(
+        self,
+        input_size: int,
+        hidden_size: int = HIDDEN_SIZE,
+        num_layers: int = NUM_LAYERS,
+        dropout: float = DROPOUT,
+    ) -> None:
         super().__init__()
         self.lstm = nn.LSTM(
             input_size=input_size,
@@ -180,19 +194,23 @@ class _LSTMNet(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """x: (batch, seq_len, input_size) -> (batch, 7)."""
-        out, _ = self.lstm(x)              # (batch, seq_len, hidden)
-        last = out[:, -1, :]               # take last time step
+        out, _ = self.lstm(x)  # (batch, seq_len, hidden)
+        last = out[:, -1, :]  # take last time step
         return self.fc(self.dropout(last))
 
 
 class _MultiStationLSTMNet(nn.Module):
     """Multi-station LSTM with learnable station embeddings (dim=8)."""
 
-    def __init__(self, input_size: int, n_stations: int,
-                 embed_dim: int = EMBED_DIM,
-                 hidden_size: int = HIDDEN_SIZE,
-                 num_layers: int = NUM_LAYERS,
-                 dropout: float = DROPOUT) -> None:
+    def __init__(
+        self,
+        input_size: int,
+        n_stations: int,
+        embed_dim: int = EMBED_DIM,
+        hidden_size: int = HIDDEN_SIZE,
+        num_layers: int = NUM_LAYERS,
+        dropout: float = DROPOUT,
+    ) -> None:
         super().__init__()
         self.embedding = nn.Embedding(n_stations + 1, embed_dim, padding_idx=0)
         # Embed repeated across sequence before concat
@@ -208,9 +226,9 @@ class _MultiStationLSTMNet(nn.Module):
 
     def forward(self, x: torch.Tensor, station_id: torch.Tensor) -> torch.Tensor:
         """x: (batch, seq, features), station_id: (batch,) -> (batch, 7)."""
-        emb = self.embedding(station_id)               # (batch, embed_dim)
+        emb = self.embedding(station_id)  # (batch, embed_dim)
         emb_expanded = emb.unsqueeze(1).expand(-1, x.size(1), -1)  # (batch, seq, embed_dim)
-        x_cat = torch.cat([x, emb_expanded], dim=2)   # (batch, seq, features+embed_dim)
+        x_cat = torch.cat([x, emb_expanded], dim=2)  # (batch, seq, features+embed_dim)
         out, _ = self.lstm(x_cat)
         last = out[:, -1, :]
         return self.fc(self.dropout(last))
@@ -297,7 +315,9 @@ def _train_loop(
             else:
                 patience_counter += 1
                 if patience_counter >= patience:
-                    logger.info("Early stopping at epoch %d (best val=%.4f).", epoch + 1, best_val_loss)
+                    logger.info(
+                        "Early stopping at epoch %d (best val=%.4f).", epoch + 1, best_val_loss
+                    )
                     break
 
         if epoch % 10 == 0:
@@ -373,12 +393,20 @@ class PerStationLSTM:
         self._model.to(self._device)
 
         self.train_history_ = _train_loop(
-            self._model, train_loader, val_loader, self._device,
-            max_epochs=self._max_epochs, patience=self._patience,
+            self._model,
+            train_loader,
+            val_loader,
+            self._device,
+            max_epochs=self._max_epochs,
+            patience=self._patience,
         )
-        logger.info("[%s] Training complete. Best val_loss=%s",
-                    self.name,
-                    f"{min(self.train_history_.get('val_loss', [float('nan')])):.4f}" if self.train_history_.get("val_loss") else "N/A")
+        logger.info(
+            "[%s] Training complete. Best val_loss=%s",
+            self.name,
+            f"{min(self.train_history_.get('val_loss', [float('nan')])):.4f}"
+            if self.train_history_.get("val_loss")
+            else "N/A",
+        )
         return self
 
     def predict(self, df: pd.DataFrame) -> np.ndarray:
@@ -398,7 +426,11 @@ class PerStationLSTM:
 
         with torch.no_grad():
             for i in range(self._seq_len - 1, n):
-                x_seq = torch.from_numpy(X_arr[i - self._seq_len + 1: i + 1]).unsqueeze(0).to(self._device)
+                x_seq = (
+                    torch.from_numpy(X_arr[i - self._seq_len + 1 : i + 1])
+                    .unsqueeze(0)
+                    .to(self._device)
+                )
                 y_hat = self._model(x_seq).squeeze(0).cpu().numpy()
                 all_preds.append(y_hat)
 
@@ -432,10 +464,10 @@ class PerStationLSTM:
             indices = rng.choice(indices, size=max_samples, replace=False).tolist()
 
         for i in indices:
-            x_np = X_arr[i - self._seq_len + 1: i + 1]
+            x_np = X_arr[i - self._seq_len + 1 : i + 1]
             x_t = torch.from_numpy(x_np).unsqueeze(0).to(self._device)
             x_t.requires_grad_(True)
-            y_hat = self._model(x_t)                # (1, 7)
+            y_hat = self._model(x_t)  # (1, 7)
             scalar = y_hat.sum()
             scalar.backward()
             if x_t.grad is not None:
@@ -453,17 +485,20 @@ class PerStationLSTM:
         """Save model state dict and metadata."""
         p = Path(path)
         p.parent.mkdir(parents=True, exist_ok=True)
-        torch.save({
-            "state_dict": self._model.state_dict() if self._model else None,
-            "feature_cols": self._feature_cols,
-            "norm_stats": self._norm_stats,
-            "config": {
-                "seq_len": self._seq_len,
-                "hidden_size": self._hidden,
-                "num_layers": self._layers,
-                "dropout": self._dropout,
+        torch.save(
+            {
+                "state_dict": self._model.state_dict() if self._model else None,
+                "feature_cols": self._feature_cols,
+                "norm_stats": self._norm_stats,
+                "config": {
+                    "seq_len": self._seq_len,
+                    "hidden_size": self._hidden,
+                    "num_layers": self._layers,
+                    "dropout": self._dropout,
+                },
             },
-        }, p)
+            p,
+        )
         logger.info("[%s] Saved model to %s.", self.name, p)
 
     @classmethod
@@ -476,7 +511,9 @@ class PerStationLSTM:
         instance._norm_stats = checkpoint["norm_stats"]
         if checkpoint["state_dict"] is not None:
             n_feats = len(instance._feature_cols)
-            instance._model = _LSTMNet(n_feats, instance._hidden, instance._layers, instance._dropout)
+            instance._model = _LSTMNet(
+                n_feats, instance._hidden, instance._layers, instance._dropout
+            )
             instance._model.load_state_dict(checkpoint["state_dict"])
             instance._model.to(instance._device)
         return instance
@@ -550,7 +587,9 @@ class MultiStationLSTM:
             df_n, _ = _normalise_df(df.copy(), self._feature_cols, stats=self._norm_stats)
             df_n["station_id"] = sid
             ds = DischargeSequenceDataset(
-                df_n, self._feature_cols, self._seq_len,
+                df_n,
+                self._feature_cols,
+                self._seq_len,
                 station_id_map=self._station_id_map,
             )
             if len(ds) > 0:
@@ -561,8 +600,11 @@ class MultiStationLSTM:
             return self
 
         from torch.utils.data import ConcatDataset
+
         combined_train = ConcatDataset(train_datasets)
-        train_loader = DataLoader(combined_train, batch_size=BATCH_SIZE, shuffle=False, drop_last=True)
+        train_loader = DataLoader(
+            combined_train, batch_size=BATCH_SIZE, shuffle=False, drop_last=True
+        )
 
         val_loader: DataLoader | None = None
         if val_dfs:
@@ -573,7 +615,9 @@ class MultiStationLSTM:
                 df_n, _ = _normalise_df(df.copy(), self._feature_cols, stats=self._norm_stats)
                 df_n["station_id"] = sid
                 ds = DischargeSequenceDataset(
-                    df_n, self._feature_cols, self._seq_len,
+                    df_n,
+                    self._feature_cols,
+                    self._seq_len,
                     station_id_map=self._station_id_map,
                 )
                 if len(ds) > 0:
@@ -590,8 +634,13 @@ class MultiStationLSTM:
         self._model.to(self._device)
 
         self.train_history_ = _train_loop(
-            self._model, train_loader, val_loader, self._device,
-            max_epochs=self._max_epochs, patience=self._patience, multi_station=True,
+            self._model,
+            train_loader,
+            val_loader,
+            self._device,
+            max_epochs=self._max_epochs,
+            patience=self._patience,
+            multi_station=True,
         )
         logger.info("[%s] Multi-station training complete on %d stations.", self.name, n_stations)
         return self
@@ -612,7 +661,11 @@ class MultiStationLSTM:
         self._model.eval()
         with torch.no_grad():
             for i in range(self._seq_len - 1, n):
-                x_seq = torch.from_numpy(X_arr[i - self._seq_len + 1: i + 1]).unsqueeze(0).to(self._device)
+                x_seq = (
+                    torch.from_numpy(X_arr[i - self._seq_len + 1 : i + 1])
+                    .unsqueeze(0)
+                    .to(self._device)
+                )
                 sid_t = torch.tensor([sid_int], dtype=torch.long).to(self._device)
                 y_hat = self._model(x_seq, sid_t).squeeze(0).cpu().numpy()
                 preds[i] = y_hat
@@ -623,17 +676,20 @@ class MultiStationLSTM:
         """Save multi-station model."""
         p = Path(path)
         p.parent.mkdir(parents=True, exist_ok=True)
-        torch.save({
-            "state_dict": self._model.state_dict() if self._model else None,
-            "feature_cols": self._feature_cols,
-            "norm_stats": self._norm_stats,
-            "station_id_map": self._station_id_map,
-            "config": {
-                "seq_len": self._seq_len,
-                "hidden_size": self._hidden,
-                "num_layers": self._layers,
-                "dropout": self._dropout,
-                "embed_dim": self._embed_dim,
+        torch.save(
+            {
+                "state_dict": self._model.state_dict() if self._model else None,
+                "feature_cols": self._feature_cols,
+                "norm_stats": self._norm_stats,
+                "station_id_map": self._station_id_map,
+                "config": {
+                    "seq_len": self._seq_len,
+                    "hidden_size": self._hidden,
+                    "num_layers": self._layers,
+                    "dropout": self._dropout,
+                    "embed_dim": self._embed_dim,
+                },
             },
-        }, p)
+            p,
+        )
         logger.info("[%s] Saved to %s.", self.name, p)

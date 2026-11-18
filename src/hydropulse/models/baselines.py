@@ -30,8 +30,13 @@ logger = logging.getLogger(__name__)
 
 FORECAST_HORIZONS = 7
 FEATURE_EXCLUDE = {
-    "date", "station_id", "provenance", "is_interpolated",
-    "is_outlier_precip", "is_outlier_discharge", "outlier_reason",
+    "date",
+    "station_id",
+    "provenance",
+    "is_interpolated",
+    "is_outlier_precip",
+    "is_outlier_discharge",
+    "outlier_reason",
     # Exclude current-day target and all future targets to prevent leakage
     "discharge_m3s",
     *[f"target_discharge_h{h}" for h in range(1, FORECAST_HORIZONS + 1)],
@@ -41,9 +46,7 @@ FEATURE_EXCLUDE = {
 def _select_features(df: pd.DataFrame) -> list[str]:
     """Return numeric feature columns that are safe to use as model inputs."""
     return [
-        c for c in df.columns
-        if c not in FEATURE_EXCLUDE
-        and pd.api.types.is_numeric_dtype(df[c])
+        c for c in df.columns if c not in FEATURE_EXCLUDE and pd.api.types.is_numeric_dtype(df[c])
     ]
 
 
@@ -114,7 +117,11 @@ class ClimatologyBaseline:
                     week_medians[int(week)] = float(np.median(vals))
 
             # Fill any missing weeks with global median
-            global_med = float(np.nanmedian(df[target_col].dropna().to_numpy())) if not df[target_col].dropna().empty else 0.0
+            global_med = (
+                float(np.nanmedian(df[target_col].dropna().to_numpy()))
+                if not df[target_col].dropna().empty
+                else 0.0
+            )
             self._climatology[h] = {w: week_medians.get(w, global_med) for w in range(1, 54)}
             # Fill remaining
             for w in range(1, 54):
@@ -140,10 +147,7 @@ class ClimatologyBaseline:
         preds: list[np.ndarray] = []
         for h in range(1, FORECAST_HORIZONS + 1):
             clim_h = self._climatology.get(h, {})
-            col = np.array([
-                clim_h.get(int(w), float("nan"))
-                for w in df_["_week"]
-            ], dtype=float)
+            col = np.array([clim_h.get(int(w), float("nan")) for w in df_["_week"]], dtype=float)
             preds.append(col)
 
         return np.column_stack(preds)
@@ -173,7 +177,9 @@ class RidgeBaseline:
         for h in range(1, FORECAST_HORIZONS + 1):
             target_col = f"target_discharge_h{h}"
             if target_col not in train_df.columns:
-                logger.warning("[%s] Target column %s not found; skipping h=%d.", self.name, target_col, h)
+                logger.warning(
+                    "[%s] Target column %s not found; skipping h=%d.", self.name, target_col, h
+                )
                 continue
 
             sub = train_df[self._feature_cols + [target_col]].dropna()
@@ -184,14 +190,21 @@ class RidgeBaseline:
             X_train = sub[self._feature_cols].to_numpy(dtype=float)
             y_train = sub[target_col].to_numpy(dtype=float)
 
-            pipe = Pipeline([
-                ("scaler", StandardScaler()),
-                ("ridge", Ridge(alpha=self._alpha)),
-            ])
+            pipe = Pipeline(
+                [
+                    ("scaler", StandardScaler()),
+                    ("ridge", Ridge(alpha=self._alpha)),
+                ]
+            )
             pipe.fit(X_train, y_train)
             self._pipelines[h] = pipe
 
-        logger.info("[%s] Fitted %d horizon models with %d features.", self.name, len(self._pipelines), len(self._feature_cols))
+        logger.info(
+            "[%s] Fitted %d horizon models with %d features.",
+            self.name,
+            len(self._pipelines),
+            len(self._feature_cols),
+        )
         return self
 
     def predict(self, df: pd.DataFrame) -> np.ndarray:
@@ -217,10 +230,7 @@ class RidgeBaseline:
     @property
     def coef_(self) -> dict[int, np.ndarray]:
         """Return coefficient arrays per horizon for interpretability."""
-        return {
-            h: pipe.named_steps["ridge"].coef_
-            for h, pipe in self._pipelines.items()
-        }
+        return {h: pipe.named_steps["ridge"].coef_ for h, pipe in self._pipelines.items()}
 
 
 def raw_glofas_baseline(df: pd.DataFrame) -> np.ndarray:

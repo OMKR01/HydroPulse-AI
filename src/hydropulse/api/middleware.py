@@ -202,15 +202,17 @@ def setup_middleware(app: Flask) -> None:
                 from datetime import UTC, datetime
 
                 return (
-                    jsonify({
-                        "error": {
-                            "status_code": 429,
-                            "title": "Too Many Requests",
-                            "detail": f"Rate limit exceeded. Please retry in {retry_after} seconds.",
-                        },
-                        "generated_at": datetime.now(UTC).isoformat(),
-                        "request_id": req_id,
-                    }),
+                    jsonify(
+                        {
+                            "error": {
+                                "status_code": 429,
+                                "title": "Too Many Requests",
+                                "detail": f"Rate limit exceeded. Please retry in {retry_after} seconds.",
+                            },
+                            "generated_at": datetime.now(UTC).isoformat(),
+                            "request_id": req_id,
+                        }
+                    ),
                     429,
                     {"Retry-After": str(retry_after)},
                 )

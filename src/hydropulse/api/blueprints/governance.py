@@ -24,14 +24,16 @@ def get_model_metrics():
     metrics_path = BASE_DIR / "reports" / "metrics.json"
 
     if not metrics_path.exists():
-        return jsonify({
-            "error": {
-                "status_code": 404,
-                "title": "Not Found",
-                "detail": "Model metrics file reports/metrics.json does not exist.",
-            },
-            "generated_at": datetime.now(UTC).isoformat(),
-        }), 404
+        return jsonify(
+            {
+                "error": {
+                    "status_code": 404,
+                    "title": "Not Found",
+                    "detail": "Model metrics file reports/metrics.json does not exist.",
+                },
+                "generated_at": datetime.now(UTC).isoformat(),
+            }
+        ), 404
 
     with open(metrics_path, encoding="utf-8") as f:
         metrics_json = json.load(f)

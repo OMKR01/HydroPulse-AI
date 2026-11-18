@@ -23,6 +23,7 @@ import pytest
 
 try:
     import torch
+
     TORCH_AVAILABLE = True
 except (ImportError, OSError):
     torch = None  # type: ignore
@@ -41,23 +42,27 @@ def _make_station_df(n: int = 500, seed: int = 42) -> pd.DataFrame:
     discharge = 50.0 + 0.8 * np.roll(precip, 1) + rng.normal(0, 5, n)
     discharge = np.maximum(discharge, 5.0)
 
-    df = pd.DataFrame({
-        "date": dates.strftime("%Y-%m-%d"),
-        "station_id": "test_station",
-        "precipitation_mm": np.round(precip, 2),
-        "temperature_max_c": rng.uniform(20.0, 38.0, n),
-        "temperature_min_c": rng.uniform(10.0, 22.0, n),
-        "relative_humidity_mean": rng.uniform(40.0, 95.0, n),
-        "discharge_m3s": np.round(discharge, 2),
-        "discharge_mean_m3s": np.round(discharge * 0.95, 2),
-        "provenance": "model_reanalysis",
-    })
+    df = pd.DataFrame(
+        {
+            "date": dates.strftime("%Y-%m-%d"),
+            "station_id": "test_station",
+            "precipitation_mm": np.round(precip, 2),
+            "temperature_max_c": rng.uniform(20.0, 38.0, n),
+            "temperature_min_c": rng.uniform(10.0, 22.0, n),
+            "relative_humidity_mean": rng.uniform(40.0, 95.0, n),
+            "discharge_m3s": np.round(discharge, 2),
+            "discharge_mean_m3s": np.round(discharge * 0.95, 2),
+            "provenance": "model_reanalysis",
+        }
+    )
 
     # Add lag and calendar features (minimal set)
     df["precip_lag_1"] = df["precipitation_mm"].shift(1)
     df["discharge_lag_1"] = df["discharge_m3s"].shift(1)
     df["precip_roll_sum_7d"] = df["precipitation_mm"].shift(1).rolling(7, min_periods=1).sum()
-    df["antecedent_precipitation_index"] = df["precipitation_mm"].shift(1).rolling(14, min_periods=1).mean()
+    df["antecedent_precipitation_index"] = (
+        df["precipitation_mm"].shift(1).rolling(14, min_periods=1).mean()
+    )
 
     doy = pd.to_datetime(df["date"]).dt.dayofyear
     df["doy_sin"] = np.sin(2.0 * np.pi * doy / 365.25)
@@ -83,8 +88,8 @@ def train_val_test(station_df: pd.DataFrame):
     df = station_df.copy()
     n = len(df)
     train = df.iloc[: int(n * 0.70)].reset_index(drop=True)
-    val = df.iloc[int(n * 0.70): int(n * 0.85)].reset_index(drop=True)
-    test = df.iloc[int(n * 0.85):].reset_index(drop=True)
+    val = df.iloc[int(n * 0.70) : int(n * 0.85)].reset_index(drop=True)
+    test = df.iloc[int(n * 0.85) :].reset_index(drop=True)
     return train, val, test
 
 
@@ -94,23 +99,27 @@ def train_val_test(station_df: pd.DataFrame):
 class TestMetrics:
     def test_nse_perfect(self):
         from src.hydropulse.evaluation.metrics import nse
+
         obs = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
         assert nse(obs, obs) == pytest.approx(1.0, abs=1e-9)
 
     def test_nse_mean_pred(self):
         from src.hydropulse.evaluation.metrics import nse
+
         obs = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
         pred = np.full_like(obs, obs.mean())
         assert nse(obs, pred) == pytest.approx(0.0, abs=1e-9)
 
     def test_nse_worse_than_mean(self):
         from src.hydropulse.evaluation.metrics import nse
+
         obs = np.array([10.0, 20.0, 30.0])
         pred = np.array([0.0, 0.0, 0.0])
         assert nse(obs, pred) < 0.0
 
     def test_nse_with_nans(self):
         from src.hydropulse.evaluation.metrics import nse
+
         obs = np.array([1.0, float("nan"), 3.0])
         pred = np.array([1.0, 99.0, 3.0])
         # NaN rows excluded — should be perfect on valid rows
@@ -118,11 +127,13 @@ class TestMetrics:
 
     def test_kge_perfect(self):
         from src.hydropulse.evaluation.metrics import kge
+
         obs = np.array([5.0, 10.0, 15.0, 20.0, 25.0])
         assert kge(obs, obs) == pytest.approx(1.0, abs=1e-9)
 
     def test_rmse_mae(self):
         from src.hydropulse.evaluation.metrics import mae, rmse
+
         obs = np.array([0.0, 0.0, 0.0])
         pred = np.array([3.0, 4.0, 0.0])
         assert rmse(obs, pred) == pytest.approx(math.sqrt((9 + 16) / 3), rel=1e-6)
@@ -130,6 +141,7 @@ class TestMetrics:
 
     def test_alert_metrics_all_correct(self):
         from src.hydropulse.evaluation.metrics import alert_metrics
+
         obs = np.array([100.0, 200.0, 50.0, 300.0])
         pred = np.array([100.0, 200.0, 50.0, 300.0])
         result = alert_metrics(obs, pred, threshold=150.0)
@@ -139,8 +151,9 @@ class TestMetrics:
 
     def test_alert_metrics_all_missed(self):
         from src.hydropulse.evaluation.metrics import alert_metrics
+
         obs = np.array([200.0, 300.0])
-        pred = np.array([50.0, 50.0])   # all misses
+        pred = np.array([50.0, 50.0])  # all misses
         result = alert_metrics(obs, pred, threshold=150.0)
         assert result["POD"] == pytest.approx(0.0)
         assert result["TP"] == 0
@@ -148,12 +161,14 @@ class TestMetrics:
 
     def test_peak_timing_error_zero(self):
         from src.hydropulse.evaluation.metrics import peak_timing_error
+
         obs = np.array([1.0, 2.0, 5.0, 2.0, 1.0, 1.0, 2.0, 5.0, 2.0, 1.0, 1.0, 2.0, 5.0, 2.0, 1.0])
         # Identical sequence → timing error should be 0
         assert peak_timing_error(obs, obs.copy(), window=5) == pytest.approx(0.0, abs=1e-9)
 
     def test_per_horizon_metrics_shape(self, station_df: pd.DataFrame):
         from src.hydropulse.evaluation.metrics import per_horizon_metrics
+
         n = 50
         obs_matrix = np.random.default_rng(0).uniform(10, 100, (n, 7))
         pred_matrix = obs_matrix + np.random.default_rng(1).normal(0, 5, (n, 7))
@@ -166,6 +181,7 @@ class TestMetrics:
 
     def test_quantile_coverage(self):
         from src.hydropulse.evaluation.metrics import compute_quantile_coverage
+
         obs = np.array([10.0, 20.0, 30.0, 40.0])
         q_lo = np.array([8.0, 18.0, 28.0, 0.0])
         q_hi = np.array([12.0, 22.0, 32.0, 35.0])
@@ -180,6 +196,7 @@ class TestMetrics:
 class TestBaselines:
     def test_persistence_shape(self, train_val_test):
         from src.hydropulse.models.baselines import PersistenceBaseline
+
         train, _, test = train_val_test
         model = PersistenceBaseline()
         model.fit(train)
@@ -188,6 +205,7 @@ class TestBaselines:
 
     def test_persistence_values(self, train_val_test):
         from src.hydropulse.models.baselines import PersistenceBaseline
+
         train, _, test = train_val_test
         model = PersistenceBaseline()
         model.fit(train)
@@ -197,6 +215,7 @@ class TestBaselines:
 
     def test_climatology_shape(self, train_val_test):
         from src.hydropulse.models.baselines import ClimatologyBaseline
+
         train, _, test = train_val_test
         model = ClimatologyBaseline()
         model.fit(train)
@@ -206,6 +225,7 @@ class TestBaselines:
 
     def test_ridge_shape_and_not_all_nan(self, train_val_test):
         from src.hydropulse.models.baselines import RidgeBaseline
+
         train, _, test = train_val_test
         model = RidgeBaseline()
         model.fit(train)
@@ -215,6 +235,7 @@ class TestBaselines:
 
     def test_ridge_coef_available(self, train_val_test):
         from src.hydropulse.models.baselines import RidgeBaseline
+
         train, _, test = train_val_test
         model = RidgeBaseline()
         model.fit(train)
@@ -225,12 +246,14 @@ class TestBaselines:
 
     def test_raw_glofas_shape(self, train_val_test):
         from src.hydropulse.models.baselines import raw_glofas_baseline
+
         _, _, test = train_val_test
         preds = raw_glofas_baseline(test)
         assert preds.shape == (len(test), 7)
 
     def test_get_all_baselines_returns_three(self):
         from src.hydropulse.models.baselines import get_all_baselines
+
         baselines = get_all_baselines()
         assert len(baselines) == 3
         names = {b.name for b in baselines}
@@ -245,15 +268,16 @@ class TestBaselines:
 class TestLGBMForecaster:
     def test_fit_predict_shape(self, train_val_test):
         from src.hydropulse.models.lgbm import LGBMForecaster
+
         train, val, test = train_val_test
-        model = LGBMForecaster(lgbm_params={"n_estimators": 20, "verbose": -1,
-                                             "random_state": 42})
+        model = LGBMForecaster(lgbm_params={"n_estimators": 20, "verbose": -1, "random_state": 42})
         model.fit(train, val_df=val)
         preds = model.predict(test)
         assert preds.shape == (len(test), 7)
 
     def test_preds_non_negative(self, train_val_test):
         from src.hydropulse.models.lgbm import LGBMForecaster
+
         train, val, test = train_val_test
         model = LGBMForecaster(lgbm_params={"n_estimators": 20, "verbose": -1, "random_state": 42})
         model.fit(train)
@@ -264,6 +288,7 @@ class TestLGBMForecaster:
 
     def test_save_and_load(self, train_val_test):
         from src.hydropulse.models.lgbm import LGBMForecaster
+
         train, _, test = train_val_test
         model = LGBMForecaster(lgbm_params={"n_estimators": 10, "verbose": -1, "random_state": 42})
         model.fit(train)
@@ -279,11 +304,13 @@ class TestLGBMForecaster:
 
     def test_hybrid_mode_name(self):
         from src.hydropulse.models.lgbm import LGBMForecaster
+
         model = LGBMForecaster(hybrid=True)
         assert model.name == "lgbm_hybrid"
 
     def test_shap_runs_without_error(self, train_val_test):
         from src.hydropulse.models.lgbm import LGBMForecaster
+
         train, _, test = train_val_test
         model = LGBMForecaster(lgbm_params={"n_estimators": 15, "verbose": -1, "random_state": 42})
         model.fit(train)
@@ -293,10 +320,10 @@ class TestLGBMForecaster:
 
     def test_predict_before_fit_returns_nan(self, station_df):
         from src.hydropulse.models.lgbm import LGBMForecaster
+
         model = LGBMForecaster()
         preds = model.predict(station_df)
         assert np.isnan(preds).all()
-
 
 
 # ──────────────────────────── Quantile tests ──────────────────────────────
@@ -305,6 +332,7 @@ class TestLGBMForecaster:
 class TestQuantileForecaster:
     def test_monotone_ordering(self, train_val_test):
         from src.hydropulse.models.quantile import QuantileLGBMForecaster
+
         train, _, test = train_val_test
         model = QuantileLGBMForecaster(
             lgbm_params={"n_estimators": 20, "verbose": -1, "random_state": 42}
@@ -317,11 +345,12 @@ class TestQuantileForecaster:
             q50 = preds["q50"][:, h_idx]
             q90 = preds["q90"][:, h_idx]
             valid = ~(np.isnan(q10) | np.isnan(q50) | np.isnan(q90))
-            assert np.all(q10[valid] <= q50[valid]), f"q10 > q50 at h={h_idx+1}"
-            assert np.all(q50[valid] <= q90[valid]), f"q50 > q90 at h={h_idx+1}"
+            assert np.all(q10[valid] <= q50[valid]), f"q10 > q50 at h={h_idx + 1}"
+            assert np.all(q50[valid] <= q90[valid]), f"q50 > q90 at h={h_idx + 1}"
 
     def test_calibration_report_keys(self, train_val_test):
         from src.hydropulse.models.quantile import QuantileLGBMForecaster
+
         train, _, test = train_val_test
         model = QuantileLGBMForecaster(
             lgbm_params={"n_estimators": 20, "verbose": -1, "random_state": 42}
@@ -343,16 +372,19 @@ class TestLSTM:
     def test_per_station_lstm_forward_pass(self):
         """Test that _LSTMNet forward pass produces correct output shape."""
         from src.hydropulse.models.lstm import _LSTMNet
+
         model = _LSTMNet(input_size=10, hidden_size=32, num_layers=1)
-        x = torch.randn(4, 30, 10)   # batch=4, seq=30, features=10
+        x = torch.randn(4, 30, 10)  # batch=4, seq=30, features=10
         y = model(x)
         assert y.shape == (4, 7)
 
     def test_multi_station_lstm_forward_pass(self):
         """Test that _MultiStationLSTMNet forward pass produces correct output shape."""
         from src.hydropulse.models.lstm import _MultiStationLSTMNet
-        model = _MultiStationLSTMNet(input_size=10, n_stations=3, embed_dim=4,
-                                     hidden_size=32, num_layers=1)
+
+        model = _MultiStationLSTMNet(
+            input_size=10, n_stations=3, embed_dim=4, hidden_size=32, num_layers=1
+        )
         x = torch.randn(2, 30, 10)
         sid = torch.tensor([1, 2], dtype=torch.long)
         y = model(x, sid)
@@ -361,11 +393,13 @@ class TestLSTM:
     def test_per_station_fit_predict_shape(self, train_val_test):
         """Smoke test: fit on small data, predict returns correct shape."""
         from src.hydropulse.models.lstm import PerStationLSTM
+
         train, val, test = train_val_test
         # Use short seq_len and epochs for speed in CI
         model = PerStationLSTM(seq_len=10)
         model._seq_len = 10
         import unittest.mock as mock
+
         with mock.patch("src.hydropulse.models.lstm.MAX_EPOCHS", 2):
             model.fit(train, val_df=val if len(val) >= 10 else None)
         preds = model.predict(test)
@@ -374,9 +408,11 @@ class TestLSTM:
     def test_per_station_save_load(self, train_val_test):
         """Test model serialisation round-trip."""
         from src.hydropulse.models.lstm import PerStationLSTM
+
         train, _, _ = train_val_test
         model = PerStationLSTM(seq_len=10)
         import unittest.mock as mock
+
         with mock.patch("src.hydropulse.models.lstm.MAX_EPOCHS", 1):
             model.fit(train)
 
@@ -391,9 +427,11 @@ class TestLSTM:
     def test_gradient_sensitivity_returns_dict(self, train_val_test):
         """Gradient attribution should return non-empty dict of feature importances."""
         from src.hydropulse.models.lstm import PerStationLSTM
+
         train, _, test = train_val_test
         model = PerStationLSTM(seq_len=10)
         import unittest.mock as mock
+
         with mock.patch("src.hydropulse.models.lstm.MAX_EPOCHS", 1):
             model.fit(train)
         sens = model.compute_gradient_sensitivity(test, max_samples=5)
@@ -402,6 +440,7 @@ class TestLSTM:
 
     def test_multi_station_lstm_fit_and_predict(self, station_df):
         from src.hydropulse.models.lstm import MultiStationLSTM
+
         df1 = station_df.iloc[:120].copy()
         df2 = station_df.iloc[:120].copy()
         df2["station_id"] = "station_b"
@@ -412,13 +451,13 @@ class TestLSTM:
         assert preds.shape == (len(df1), 7)
 
 
-
 # ──────────────────────────── plots tests ─────────────────────────────────
 
 
 class TestPlots:
     def test_plot_hydrograph_saves_png(self):
         from src.hydropulse.evaluation.plots import plot_hydrograph
+
         n = 60
         dates = pd.date_range("2021-01-01", periods=n, freq="D").strftime("%Y-%m-%d")
         obs = np.random.default_rng(0).uniform(50, 200, n)
@@ -431,6 +470,7 @@ class TestPlots:
 
     def test_plot_model_comparison_saves_png(self):
         from src.hydropulse.evaluation.plots import plot_model_comparison
+
         comparison = {
             "persistence": [{"horizon_days": h, "NSE": 0.3 + h * 0.01} for h in range(1, 8)],
             "lgbm": [{"horizon_days": h, "NSE": 0.6 + h * 0.005} for h in range(1, 8)],
@@ -442,6 +482,7 @@ class TestPlots:
 
     def test_plot_shap_importance_saves_png(self):
         from src.hydropulse.evaluation.plots import plot_shap_importance
+
         features = [f"feat_{i}" for i in range(15)]
         shap_vals = np.random.default_rng(0).uniform(0, 1, 15)
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -451,12 +492,29 @@ class TestPlots:
 
     def test_plot_worst_best_years(self):
         from src.hydropulse.evaluation.plots import plot_worst_best_years
+
         dates = pd.date_range("2021-01-01", periods=30, freq="D").strftime("%Y-%m-%d").to_numpy()
         obs = np.array([10.0 + i for i in range(30)])
         pred = np.array([10.5 + i for i in range(30)])
         records = [
-            {"year": 2021, "dates": dates, "obs": obs, "pred": pred, "NSE": 0.85, "station_id": "test_stn", "horizon_days": 1},
-            {"year": 2022, "dates": dates, "obs": obs, "pred": pred + 2.0, "NSE": 0.45, "station_id": "test_stn", "horizon_days": 1},
+            {
+                "year": 2021,
+                "dates": dates,
+                "obs": obs,
+                "pred": pred,
+                "NSE": 0.85,
+                "station_id": "test_stn",
+                "horizon_days": 1,
+            },
+            {
+                "year": 2022,
+                "dates": dates,
+                "obs": obs,
+                "pred": pred + 2.0,
+                "NSE": 0.45,
+                "station_id": "test_stn",
+                "horizon_days": 1,
+            },
         ]
         with tempfile.TemporaryDirectory() as tmpdir:
             plot_worst_best_years("lgbm", records, save_dir=tmpdir)
@@ -465,12 +523,12 @@ class TestPlots:
 
     def test_plot_worst_best_years_empty_and_nan(self):
         from src.hydropulse.evaluation.plots import plot_worst_best_years
+
         with tempfile.TemporaryDirectory() as tmpdir:
             plot_worst_best_years("lgbm", [], save_dir=tmpdir)
             plot_worst_best_years("lgbm", [{"NSE": float("nan")}], save_dir=tmpdir)
             files = list(Path(tmpdir).glob("*.png"))
             assert len(files) == 0
-
 
 
 # ──────────────────────────── pipeline split tests ────────────────────────
@@ -480,11 +538,14 @@ class TestChronologicalSplit:
     def test_split_no_leakage(self):
         """Ensure no date appears in both train and test after chronological split."""
         from src.hydropulse.pipeline.train import _split_df
+
         dates = pd.date_range("2000-01-01", periods=365 * 25, freq="D")
-        df = pd.DataFrame({
-            "date": dates.strftime("%Y-%m-%d"),
-            "discharge_m3s": np.ones(len(dates)),
-        })
+        df = pd.DataFrame(
+            {
+                "date": dates.strftime("%Y-%m-%d"),
+                "discharge_m3s": np.ones(len(dates)),
+            }
+        )
         train, val, test = _split_df(df)
 
         train_dates = set(train["date"])
@@ -496,11 +557,14 @@ class TestChronologicalSplit:
 
     def test_split_sizes_reasonable(self):
         from src.hydropulse.pipeline.train import _split_df
+
         dates = pd.date_range("2000-01-01", periods=365 * 25, freq="D")
-        df = pd.DataFrame({
-            "date": dates.strftime("%Y-%m-%d"),
-            "discharge_m3s": np.ones(len(dates)),
-        })
+        df = pd.DataFrame(
+            {
+                "date": dates.strftime("%Y-%m-%d"),
+                "discharge_m3s": np.ones(len(dates)),
+            }
+        )
         train, val, test = _split_df(df)
         assert len(train) > len(test) > 0
         assert len(val) > 0
@@ -512,6 +576,7 @@ class TestChronologicalSplit:
 class TestMetricsWriter:
     def test_write_and_read_metrics_json(self):
         from src.hydropulse.evaluation.metrics import write_metrics_json
+
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir) / "reports" / "metrics.json"
             record = {
@@ -529,6 +594,7 @@ class TestMetricsWriter:
             write_metrics_json(record, metrics_path=path)
 
             import json
+
             with open(path) as fh:
                 data = json.load(fh)
 
@@ -543,6 +609,7 @@ class TestMetricsWriter:
 class TestPipelineTraining:
     def test_run_training_dry_run(self):
         from src.hydropulse.pipeline.train import run_training
+
         with tempfile.TemporaryDirectory() as tmpdir:
             reports_dir = Path(tmpdir) / "reports"
             processed_dir = Path(tmpdir) / "processed"
@@ -561,12 +628,15 @@ class TestPipelineTraining:
         import unittest.mock as mock
 
         from src.hydropulse.pipeline.train import run_training
+
         with tempfile.TemporaryDirectory() as tmpdir:
             reports_dir = Path(tmpdir) / "reports"
             processed_dir = Path(tmpdir) / "processed"
             fast_params = {"n_estimators": 5, "verbose": -1, "random_state": 42}
-            with mock.patch("src.hydropulse.models.lgbm._DEFAULT_PARAMS", fast_params), \
-                 mock.patch("src.hydropulse.models.quantile._QUANTILE_LGBM_PARAMS", fast_params):
+            with (
+                mock.patch("src.hydropulse.models.lgbm._DEFAULT_PARAMS", fast_params),
+                mock.patch("src.hydropulse.models.quantile._QUANTILE_LGBM_PARAMS", fast_params),
+            ):
                 res = run_training(
                     station_ids=["damodar_ramgarh"],
                     processed_dir=processed_dir,
@@ -578,5 +648,3 @@ class TestPipelineTraining:
             assert Path(res["metrics_path"]).exists()
             assert Path(res["comparison_table"]).exists()
             assert Path(res["plots_dir"]).exists()
-
-

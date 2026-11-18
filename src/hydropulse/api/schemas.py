@@ -102,7 +102,9 @@ class StationHistoryResponse(BaseEnvelope):
 
 class GeoJSONGeometry(BaseModel):
     type: Literal["Point"] = "Point"
-    coordinates: list[float] = Field(..., min_length=2, max_length=2, description="[longitude, latitude]")
+    coordinates: list[float] = Field(
+        ..., min_length=2, max_length=2, description="[longitude, latitude]"
+    )
 
 
 class GeoJSONProperties(BaseModel):

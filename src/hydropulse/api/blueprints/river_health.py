@@ -59,12 +59,22 @@ def get_water_quality(station_id: str):
             "station_id": station_id,
             "date": datetime.now(UTC).strftime("%Y-%m-15"),
             "ph": round(float(rng.uniform(7.1, 7.8)), 2),
-            "dissolved_oxygen_mg_l": round(float(rng.uniform(3.8, 5.8) if is_industrial else rng.uniform(6.2, 7.5)), 2),
-            "bod_mg_l": round(float(rng.uniform(3.5, 6.5) if is_industrial else rng.uniform(1.8, 2.8)), 2),
-            "cod_mg_l": round(float(rng.uniform(25.0, 55.0) if is_industrial else rng.uniform(12.0, 20.0)), 1),
-            "conductivity_us_cm": round(float(rng.uniform(600.0, 1100.0) if is_industrial else rng.uniform(350.0, 500.0)), 1),
+            "dissolved_oxygen_mg_l": round(
+                float(rng.uniform(3.8, 5.8) if is_industrial else rng.uniform(6.2, 7.5)), 2
+            ),
+            "bod_mg_l": round(
+                float(rng.uniform(3.5, 6.5) if is_industrial else rng.uniform(1.8, 2.8)), 2
+            ),
+            "cod_mg_l": round(
+                float(rng.uniform(25.0, 55.0) if is_industrial else rng.uniform(12.0, 20.0)), 1
+            ),
+            "conductivity_us_cm": round(
+                float(rng.uniform(600.0, 1100.0) if is_industrial else rng.uniform(350.0, 500.0)), 1
+            ),
             "turbidity_ntu": round(float(rng.uniform(4.0, 12.0)), 1),
-            "fecal_coliform_mpn_100ml": round(float(rng.uniform(600.0, 2200.0) if is_industrial else rng.uniform(150.0, 450.0)), 1),
+            "fecal_coliform_mpn_100ml": round(
+                float(rng.uniform(600.0, 2200.0) if is_industrial else rng.uniform(150.0, 450.0)), 1
+            ),
             "provenance": "synthetic",
         }
 
@@ -133,7 +143,9 @@ def get_drought_status(station_id: str):
             if "provenance" in df.columns and len(df) > 0:
                 provenance = str(df["provenance"].iloc[-1])
         except Exception as err:
-            logger.warning("Error reading drought features from parquet for %s: %s", station_id, err)
+            logger.warning(
+                "Error reading drought features from parquet for %s: %s", station_id, err
+            )
 
     if not discharge_series:
         rng = np.random.default_rng(abs(hash(station_id)) % (2**32))
@@ -168,7 +180,9 @@ def get_drought_status(station_id: str):
 
     resp = DroughtResponse(
         generated_at=datetime.now(UTC).isoformat(),
-        data_provenance=provenance if provenance in ("observed", "model_reanalysis", "forecast") else "synthetic",
+        data_provenance=provenance
+        if provenance in ("observed", "model_reanalysis", "forecast")
+        else "synthetic",
         is_stale=False,
         station_id=station_id,
         date=current_date,

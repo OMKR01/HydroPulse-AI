@@ -23,7 +23,8 @@ def verify_dashboard_integration():
 
     # Verification checklist per AGENTS.md Rule 8
     checks = {
-        "Statutory CWC/JSDMA Disclaimer": "Central Water Commission (CWC)" in html and "JSDMA" in html,
+        "Statutory CWC/JSDMA Disclaimer": "Central Water Commission (CWC)" in html
+        and "JSDMA" in html,
         "Provenance Badge Container": "provenance-pill" in html and "provenance-label" in html,
         "Bilingual Toggle (EN / Hindi)": "lang-toggle-btn" in html and "हिन्दी" in html,
         "Leaflet Map Mount Point": 'id="map-viewport"' in html,
@@ -33,7 +34,8 @@ def verify_dashboard_integration():
         "River Health (WQI) Panel": "Weighted-Arithmetic WQI" in html,
         "CPCB Statutory Class Badge": "CPCB Designated-Best-Use" in html,
         "Industrial Corridor Hotspot Alert": "hotspot-alert-banner" in html,
-        "Drought Severity & SPI Indicators": "Compound Drought Severity" in html and "Standardized Precipitation Index (SPI)" in html,
+        "Drought Severity & SPI Indicators": "Compound Drought Severity" in html
+        and "Standardized Precipitation Index (SPI)" in html,
         "Hydrological Q90 Low-Flow Stress": "Hydrological Baseflow Deficit (Q90)" in html,
         "30-Day Outlook Trajectory": "30-Day Forward Trajectory" in html,
         "Explainability 'Why' Section": "Why is this station at this level?" in html,
@@ -64,7 +66,9 @@ def verify_dashboard_integration():
 
     print("===========================================================\n")
     if all_passed:
-        print("SUCCESS: Phase 6 Dashboard complies with all UI, accessibility, and integrity rules!")
+        print(
+            "SUCCESS: Phase 6 Dashboard complies with all UI, accessibility, and integrity rules!"
+        )
     else:
         raise AssertionError("One or more dashboard checks failed!")
 

@@ -234,7 +234,9 @@ class TestHotspotDetection:
             "cod_mg_l": 15.0,
             "conductivity_us_cm": 400.0,
         }
-        res = detect_pollution_hotspots(record, "damodar_ramgarh", "2023-01-15", provenance="synthetic")
+        res = detect_pollution_hotspots(
+            record, "damodar_ramgarh", "2023-01-15", provenance="synthetic"
+        )
         assert res.is_hotspot is False
         assert res.severity == "None"
         assert res.status_label == "indicative"
@@ -246,7 +248,9 @@ class TestHotspotDetection:
             "cod_mg_l": 75.0,  # Industrial chemical
             "conductivity_us_cm": 1800.0,  # High salinity
         }
-        res = detect_pollution_hotspots(record, "damodar_bokaro", "2023-02-15", provenance="observed")
+        res = detect_pollution_hotspots(
+            record, "damodar_bokaro", "2023-02-15", provenance="observed"
+        )
         assert res.is_hotspot is True
         assert res.severity == "Critical"
         assert res.status_label == "verified"
@@ -259,13 +263,15 @@ class TestNextMonthWQIClassifier:
         n = 36  # 36 monthly observations
         dates = pd.date_range("2020-01-01", periods=n, freq="ME")
 
-        df = pd.DataFrame({
-            "date": dates.strftime("%Y-%m-%d"),
-            "ph": rng.uniform(6.8, 8.2, n),
-            "dissolved_oxygen_mg_l": rng.uniform(4.5, 7.5, n),
-            "bod_mg_l": rng.uniform(1.5, 4.0, n),
-            "conductivity_us_cm": rng.uniform(300.0, 800.0, n),
-        })
+        df = pd.DataFrame(
+            {
+                "date": dates.strftime("%Y-%m-%d"),
+                "ph": rng.uniform(6.8, 8.2, n),
+                "dissolved_oxygen_mg_l": rng.uniform(4.5, 7.5, n),
+                "bod_mg_l": rng.uniform(1.5, 4.0, n),
+                "conductivity_us_cm": rng.uniform(300.0, 800.0, n),
+            }
+        )
 
         train_df = df.iloc[:28]
         test_df = df.iloc[28:]

@@ -76,13 +76,15 @@ def main() -> None:
     cells = []
 
     # 1. Title
-    cells.append(make_md_cell(
-        "# HydroPulse AI — River Health, Drought & Water Quality (WQI) Analysis\n\n"
-        "**Basins:** Damodar and Subarnarekha (Jharkhand)\n"
-        "**Purpose:** Phase 4 River Health Evaluation\n"
-        "**Provenance Notice:** Historical water quality records carry `provenance: synthetic` "
-        "and are analyzed for demonstration. Alerts carry the `[INDICATIVE]` badge in accordance with AGENTS.md."
-    ))
+    cells.append(
+        make_md_cell(
+            "# HydroPulse AI — River Health, Drought & Water Quality (WQI) Analysis\n\n"
+            "**Basins:** Damodar and Subarnarekha (Jharkhand)\n"
+            "**Purpose:** Phase 4 River Health Evaluation\n"
+            "**Provenance Notice:** Historical water quality records carry `provenance: synthetic` "
+            "and are analyzed for demonstration. Alerts carry the `[INDICATIVE]` badge in accordance with AGENTS.md."
+        )
+    )
 
     # 2. Imports
     import_code = (
@@ -105,19 +107,28 @@ def main() -> None:
         ")\n"
         "print('HydroPulse models loaded successfully.')"
     )
-    cells.append(make_code_cell(import_code, [{
-        "name": "stdout",
-        "output_type": "stream",
-        "text": ["HydroPulse models loaded successfully.\n"],
-    }]))
+    cells.append(
+        make_code_cell(
+            import_code,
+            [
+                {
+                    "name": "stdout",
+                    "output_type": "stream",
+                    "text": ["HydroPulse models loaded successfully.\n"],
+                }
+            ],
+        )
+    )
 
     # 3. Section 1: Drought Analysis for Damodar at Ramgarh
-    cells.append(make_md_cell(
-        "## 1. Drought History & Low-Flow Tracking: Damodar at Ramgarh\n\n"
-        "Under hydrological engineering conventions, $Q_{90}$ is the 10th percentile of historic flow "
-        "(flow is below this level only 10% of the time, designating severe low-flow stress). "
-        "Below, we evaluate daily discharge alongside Standardized Precipitation Indices (SPI-30d, 90d, 180d)."
-    ))
+    cells.append(
+        make_md_cell(
+            "## 1. Drought History & Low-Flow Tracking: Damodar at Ramgarh\n\n"
+            "Under hydrological engineering conventions, $Q_{90}$ is the 10th percentile of historic flow "
+            "(flow is below this level only 10% of the time, designating severe low-flow stress). "
+            "Below, we evaluate daily discharge alongside Standardized Precipitation Indices (SPI-30d, 90d, 180d)."
+        )
+    )
 
     # Generate synthetic 3-year daily hydrograph for demonstration
     rng = np.random.default_rng(42)
@@ -134,11 +145,13 @@ def main() -> None:
         discharge[dry_start : dry_start + 45] *= 0.25
     discharge = np.maximum(discharge, 2.0)
 
-    daily_df = pd.DataFrame({
-        "date": daily_dates.strftime("%Y-%m-%d"),
-        "precipitation_mm": np.round(precip, 2),
-        "discharge_m3s": np.round(discharge, 2),
-    })
+    daily_df = pd.DataFrame(
+        {
+            "date": daily_dates.strftime("%Y-%m-%d"),
+            "precipitation_mm": np.round(precip, 2),
+            "discharge_m3s": np.round(discharge, 2),
+        }
+    )
 
     q90_thresh = compute_low_flow_threshold(daily_df["discharge_m3s"], quantile=0.10)
     evaluator = StationDroughtEvaluator("damodar_ramgarh", low_flow_quantile=0.10)
@@ -147,40 +160,62 @@ def main() -> None:
 
     # Plot 1: Low Flow Hydrograph
     fig, ax = plt.subplots(figsize=(12, 4.5))
-    ax.plot(daily_dates, daily_df["discharge_m3s"], label="Discharge (m³/s)", color="#0284c7", lw=1.2)
-    ax.axhline(q90_thresh, color="#dc2626", linestyle="--", lw=1.5, label=f"Q90 Low-Flow Threshold ({q90_thresh:.1f} m³/s)")
+    ax.plot(
+        daily_dates, daily_df["discharge_m3s"], label="Discharge (m³/s)", color="#0284c7", lw=1.2
+    )
+    ax.axhline(
+        q90_thresh,
+        color="#dc2626",
+        linestyle="--",
+        lw=1.5,
+        label=f"Q90 Low-Flow Threshold ({q90_thresh:.1f} m³/s)",
+    )
     low_mask = daily_df["discharge_m3s"] < q90_thresh
-    ax.fill_between(daily_dates, daily_df["discharge_m3s"], q90_thresh, where=low_mask, color="#fee2e2", alpha=0.8, label="Low-Flow Deficit")
-    ax.set_title("Damodar at Ramgarh — Discharge & Q90 Low-Flow Stress Timeline (2021–2023)", fontsize=12, fontweight="bold")
+    ax.fill_between(
+        daily_dates,
+        daily_df["discharge_m3s"],
+        q90_thresh,
+        where=low_mask,
+        color="#fee2e2",
+        alpha=0.8,
+        label="Low-Flow Deficit",
+    )
+    ax.set_title(
+        "Damodar at Ramgarh — Discharge & Q90 Low-Flow Stress Timeline (2021–2023)",
+        fontsize=12,
+        fontweight="bold",
+    )
     ax.set_xlabel("Date")
     ax.set_ylabel("River Discharge (m³/s)")
     ax.legend(loc="upper right")
     ax.grid(True, linestyle=":", alpha=0.6)
     img_b64_1 = fig_to_base64(fig)
 
-    cells.append(make_code_cell(
-        "# Compute Q90 low-flow threshold and identify hydrological stress\n"
-        "q90 = compute_low_flow_threshold(daily_df['discharge_m3s'], quantile=0.10)\n"
-        "low_flow_count = (daily_df['discharge_m3s'] < q90).sum()\n"
-        f"print(f'Fitted Q90 Low-Flow Threshold: {q90_thresh:.2f} m3/s')\n"
-        f"print(f'Total Low-Flow Days: {low_mask.sum()} / {len(daily_df)} ({low_mask.mean()*100:.1f}%)')",
-        [
-            {
-                "name": "stdout",
-                "output_type": "stream",
-                "text": [
-                    f"Fitted Q90 Low-Flow Threshold: {q90_thresh:.2f} m3/s\n",
-                    f"Total Low-Flow Days: {low_mask.sum()} / {len(daily_df)} ({low_mask.mean()*100:.1f}%)\n",
-                ],
-            },
-            {
-                "data": {"image/png": img_b64_1},
-                "execution_count": 1,
-                "metadata": {},
-                "output_type": "display_data",
-            },
-        ],
-    ))
+    cells.append(
+        make_code_cell(
+            "# Compute Q90 low-flow threshold and identify hydrological stress\n"
+            "q90 = compute_low_flow_threshold(daily_df['discharge_m3s'], quantile=0.10)\n"
+            "low_flow_count = (daily_df['discharge_m3s'] < q90).sum()\n"
+            f"print(f'Fitted Q90 Low-Flow Threshold: {q90_thresh:.2f} m3/s')\n"
+            f"print(f'Total Low-Flow Days: {low_mask.sum()} / {len(daily_df)} ({low_mask.mean() * 100:.1f}%)')",
+            [
+                {
+                    "name": "stdout",
+                    "output_type": "stream",
+                    "text": [
+                        f"Fitted Q90 Low-Flow Threshold: {q90_thresh:.2f} m3/s\n",
+                        f"Total Low-Flow Days: {low_mask.sum()} / {len(daily_df)} ({low_mask.mean() * 100:.1f}%)\n",
+                    ],
+                },
+                {
+                    "data": {"image/png": img_b64_1},
+                    "execution_count": 1,
+                    "metadata": {},
+                    "output_type": "display_data",
+                },
+            ],
+        )
+    )
 
     # 4. Drought 30-Day Outlook
     current_assessment = evaluate_drought_status(
@@ -199,83 +234,115 @@ def main() -> None:
         forecast_discharge_7d=[3.5, 3.6, 3.8, 3.5, 4.0, 4.2, 4.0],
     )
 
-    cells.append(make_md_cell(
-        "### 30-Day Forward Drought Outlook\n"
-        f"**Station:** Damodar at Ramgarh (As of 2023-04-15)\n"
-        f"- **Current Severity:** {current_assessment.severity} (Score: {current_assessment.composite_score})\n"
-        f"- **Low Flow Flag:** {'Active (Q < Q90)' if current_assessment.is_low_flow else 'Inactive'}\n"
-        f"- **30-Day Outlook Trend:** `{outlook.outlook_trend}`\n"
-        f"- **Projected Precipitation Deficit:** {outlook.projected_deficit_pct}%\n"
-        f"- **Forecast Low-Flow Days (next 7d):** {outlook.forecast_low_flow_days_7d} / 7 days\n"
-        f"- **Advisory Narrative:** *{outlook.summary}*"
-    ))
+    cells.append(
+        make_md_cell(
+            "### 30-Day Forward Drought Outlook\n"
+            f"**Station:** Damodar at Ramgarh (As of 2023-04-15)\n"
+            f"- **Current Severity:** {current_assessment.severity} (Score: {current_assessment.composite_score})\n"
+            f"- **Low Flow Flag:** {'Active (Q < Q90)' if current_assessment.is_low_flow else 'Inactive'}\n"
+            f"- **30-Day Outlook Trend:** `{outlook.outlook_trend}`\n"
+            f"- **Projected Precipitation Deficit:** {outlook.projected_deficit_pct}%\n"
+            f"- **Forecast Low-Flow Days (next 7d):** {outlook.forecast_low_flow_days_7d} / 7 days\n"
+            f"- **Advisory Narrative:** *{outlook.summary}*"
+        )
+    )
 
     # 5. Section 2: Water Quality Health (WQI) Analysis
-    cells.append(make_md_cell(
-        "## 2. Water Quality Health (WA-WQI) & CPCB Classification\n\n"
-        "We evaluate multi-year monthly monitoring records for Jharkhand river stations. "
-        "Scores are computed using the Weighted-Arithmetic Water Quality Index (WA-WQI) and classified "
-        "against the official Central Pollution Control Board (CPCB) Designated-Best-Use criteria (Classes A–E)."
-    ))
+    cells.append(
+        make_md_cell(
+            "## 2. Water Quality Health (WA-WQI) & CPCB Classification\n\n"
+            "We evaluate multi-year monthly monitoring records for Jharkhand river stations. "
+            "Scores are computed using the Weighted-Arithmetic Water Quality Index (WA-WQI) and classified "
+            "against the official Central Pollution Control Board (CPCB) Designated-Best-Use criteria (Classes A–E)."
+        )
+    )
 
     wq_df = pd.read_csv("data/raw/wq/historical_monthly_wq_synthetic.csv")
     wq_df["wqi"] = wq_df.apply(lambda r: calculate_wqi(r).wqi, axis=1)
     wq_df["wqi_rating"] = wq_df.apply(lambda r: calculate_wqi(r).rating, axis=1)
     wq_df["cpcb_class"] = wq_df.apply(classify_cpcb_use, axis=1)
 
-    summary_tbl = wq_df.groupby("station_id").agg(
-        mean_wqi=("wqi", "mean"),
-        mean_do=("dissolved_oxygen_mg_l", "mean"),
-        mean_bod=("bod_mg_l", "mean"),
-        mean_cod=("cod_mg_l", "mean"),
-        mean_cond=("conductivity_us_cm", "mean"),
-        top_cpcb_class=("cpcb_class", lambda s: s.mode()[0]),
-    ).round(2).reset_index()
+    summary_tbl = (
+        wq_df.groupby("station_id")
+        .agg(
+            mean_wqi=("wqi", "mean"),
+            mean_do=("dissolved_oxygen_mg_l", "mean"),
+            mean_bod=("bod_mg_l", "mean"),
+            mean_cod=("cod_mg_l", "mean"),
+            mean_cond=("conductivity_us_cm", "mean"),
+            top_cpcb_class=("cpcb_class", lambda s: s.mode()[0]),
+        )
+        .round(2)
+        .reset_index()
+    )
 
     # Plot 2: WQI Comparison Across Stations
     fig, ax = plt.subplots(figsize=(10, 4.5))
     stations_ordered = summary_tbl["station_id"].tolist()
     mean_wqis = summary_tbl["mean_wqi"].tolist()
-    colors = ["#10b981" if w <= 25 else "#3b82f6" if w <= 50 else "#f59e0b" if w <= 75 else "#ef4444" for w in mean_wqis]
+    colors = [
+        "#10b981" if w <= 25 else "#3b82f6" if w <= 50 else "#f59e0b" if w <= 75 else "#ef4444"
+        for w in mean_wqis
+    ]
     bars = ax.bar(stations_ordered, mean_wqis, color=colors, width=0.55)
     ax.axhline(50, color="#f59e0b", linestyle=":", label="Good / Poor Boundary (WQI=50)")
-    ax.set_title("Mean Water Quality Index (WQI) Across Jharkhand Stations (2019–2023)", fontsize=11, fontweight="bold")
+    ax.set_title(
+        "Mean Water Quality Index (WQI) Across Jharkhand Stations (2019–2023)",
+        fontsize=11,
+        fontweight="bold",
+    )
     ax.set_ylabel("WQI Score (Lower = Healthier)")
     ax.set_xticklabels(stations_ordered, rotation=20, ha="right")
     ax.legend(loc="upper left")
     ax.grid(True, axis="y", linestyle=":", alpha=0.6)
     for bar, val in zip(bars, mean_wqis, strict=False):
-        ax.text(bar.get_x() + bar.get_width()/2, val + 1.5, f"{val:.1f}", ha="center", va="bottom", fontsize=9, fontweight="bold")
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            val + 1.5,
+            f"{val:.1f}",
+            ha="center",
+            va="bottom",
+            fontsize=9,
+            fontweight="bold",
+        )
     img_b64_2 = fig_to_base64(fig)
 
-    cells.append(make_code_cell(
-        "# Multi-station WQI summary and CPCB class distribution\n"
-        "display_df = summary_tbl.copy()\n"
-        "print(display_df.to_string(index=False))",
-        [
-            {
-                "name": "stdout",
-                "output_type": "stream",
-                "text": [summary_tbl.to_string(index=False) + "\n"],
-            },
-            {
-                "data": {"image/png": img_b64_2},
-                "execution_count": 1,
-                "metadata": {},
-                "output_type": "display_data",
-            },
-        ],
-    ))
+    cells.append(
+        make_code_cell(
+            "# Multi-station WQI summary and CPCB class distribution\n"
+            "display_df = summary_tbl.copy()\n"
+            "print(display_df.to_string(index=False))",
+            [
+                {
+                    "name": "stdout",
+                    "output_type": "stream",
+                    "text": [summary_tbl.to_string(index=False) + "\n"],
+                },
+                {
+                    "data": {"image/png": img_b64_2},
+                    "execution_count": 1,
+                    "metadata": {},
+                    "output_type": "display_data",
+                },
+            ],
+        )
+    )
 
     # 6. Seasonal Decomposition of DO & BOD for Damodar at Bokaro
-    cells.append(make_md_cell(
-        "## 3. Seasonal Decomposition: Damodar at Bokaro\n\n"
-        "Industrial river reaches exhibit strong seasonal dynamics: monsoon rainfall provides massive dilution "
-        "improving Dissolved Oxygen (DO), whereas summer pre-monsoon concentrates effluents and elevates BOD."
-    ))
+    cells.append(
+        make_md_cell(
+            "## 3. Seasonal Decomposition: Damodar at Bokaro\n\n"
+            "Industrial river reaches exhibit strong seasonal dynamics: monsoon rainfall provides massive dilution "
+            "improving Dissolved Oxygen (DO), whereas summer pre-monsoon concentrates effluents and elevates BOD."
+        )
+    )
 
-    bokaro_wq = wq_df[wq_df["station_id"] == "damodar_bokaro"].sort_values("date").reset_index(drop=True)
-    decomp_do = seasonal_decompose_monthly(bokaro_wq["dissolved_oxygen_mg_l"], period=12, parameter_name="DO")
+    bokaro_wq = (
+        wq_df[wq_df["station_id"] == "damodar_bokaro"].sort_values("date").reset_index(drop=True)
+    )
+    decomp_do = seasonal_decompose_monthly(
+        bokaro_wq["dissolved_oxygen_mg_l"], period=12, parameter_name="DO"
+    )
     seasonal_decompose_monthly(bokaro_wq["bod_mg_l"], period=12, parameter_name="BOD")
 
     fig, axes = plt.subplots(4, 1, figsize=(11, 8), sharex=True)
@@ -283,7 +350,11 @@ def main() -> None:
     dates_labels = bokaro_wq["date"].tolist()
 
     axes[0].plot(x, decomp_do.observed, label="Observed DO (mg/L)", color="#0284c7")
-    axes[0].set_title("Damodar at Bokaro — Seasonal Decomposition of Dissolved Oxygen (DO)", fontsize=11, fontweight="bold")
+    axes[0].set_title(
+        "Damodar at Bokaro — Seasonal Decomposition of Dissolved Oxygen (DO)",
+        fontsize=11,
+        fontweight="bold",
+    )
     axes[0].set_ylabel("Observed")
     axes[0].grid(True, linestyle=":", alpha=0.5)
 
@@ -306,107 +377,125 @@ def main() -> None:
     plt.tight_layout()
     img_b64_3 = fig_to_base64(fig)
 
-    cells.append(make_code_cell(
-        "# Classical monthly seasonal decomposition (DO and BOD at Bokaro)\n"
-        f"print(f'Decomposed {len(bokaro_wq)} monthly records for Damodar at Bokaro.')\n"
-        f"print(f'Seasonal DO range: {min(decomp_do.seasonal):.2f} to {max(decomp_do.seasonal):.2f} mg/L')",
-        [
-            {
-                "name": "stdout",
-                "output_type": "stream",
-                "text": [
-                    f"Decomposed {len(bokaro_wq)} monthly records for Damodar at Bokaro.\n",
-                    f"Seasonal DO range: {min(decomp_do.seasonal):.2f} to {max(decomp_do.seasonal):.2f} mg/L\n",
-                ],
-            },
-            {
-                "data": {"image/png": img_b64_3},
-                "execution_count": 1,
-                "metadata": {},
-                "output_type": "display_data",
-            },
-        ],
-    ))
+    cells.append(
+        make_code_cell(
+            "# Classical monthly seasonal decomposition (DO and BOD at Bokaro)\n"
+            f"print(f'Decomposed {len(bokaro_wq)} monthly records for Damodar at Bokaro.')\n"
+            f"print(f'Seasonal DO range: {min(decomp_do.seasonal):.2f} to {max(decomp_do.seasonal):.2f} mg/L')",
+            [
+                {
+                    "name": "stdout",
+                    "output_type": "stream",
+                    "text": [
+                        f"Decomposed {len(bokaro_wq)} monthly records for Damodar at Bokaro.\n",
+                        f"Seasonal DO range: {min(decomp_do.seasonal):.2f} to {max(decomp_do.seasonal):.2f} mg/L\n",
+                    ],
+                },
+                {
+                    "data": {"image/png": img_b64_3},
+                    "execution_count": 1,
+                    "metadata": {},
+                    "output_type": "display_data",
+                },
+            ],
+        )
+    )
 
     # 7. Non-parametric Mann-Kendall Trend Tests
-    cells.append(make_md_cell(
-        "## 4. Non-Parametric Mann-Kendall Trend Tests & Sen's Slope\n\n"
-        "We apply the rank-based Mann-Kendall test with Sen's non-parametric slope estimator "
-        "to test for monotonic multi-year trends across water quality variables."
-    ))
+    cells.append(
+        make_md_cell(
+            "## 4. Non-Parametric Mann-Kendall Trend Tests & Sen's Slope\n\n"
+            "We apply the rank-based Mann-Kendall test with Sen's non-parametric slope estimator "
+            "to test for monotonic multi-year trends across water quality variables."
+        )
+    )
 
     mk_rows = []
     for sid in ["damodar_ramgarh", "damodar_bokaro", "damodar_dhanbad"]:
         sub = wq_df[wq_df["station_id"] == sid].sort_values("date")
         for param in ["dissolved_oxygen_mg_l", "bod_mg_l", "conductivity_us_cm"]:
             res = mann_kendall_test(sub[param], parameter_name=param)
-            mk_rows.append({
-                "station_id": sid,
-                "parameter": param,
-                "n_samples": res.n_samples,
-                "s_stat": res.s_statistic,
-                "z_stat": res.z_statistic,
-                "p_value": res.p_value,
-                "sens_slope": res.sens_slope,
-                "trend": res.trend,
-            })
+            mk_rows.append(
+                {
+                    "station_id": sid,
+                    "parameter": param,
+                    "n_samples": res.n_samples,
+                    "s_stat": res.s_statistic,
+                    "z_stat": res.z_statistic,
+                    "p_value": res.p_value,
+                    "sens_slope": res.sens_slope,
+                    "trend": res.trend,
+                }
+            )
     mk_df = pd.DataFrame(mk_rows)
 
-    cells.append(make_code_cell(
-        "# Mann-Kendall trend test results across Damodar stations\n"
-        "print(mk_df.to_string(index=False))",
-        [
-            {
-                "name": "stdout",
-                "output_type": "stream",
-                "text": [mk_df.to_string(index=False) + "\n"],
-            }
-        ],
-    ))
+    cells.append(
+        make_code_cell(
+            "# Mann-Kendall trend test results across Damodar stations\n"
+            "print(mk_df.to_string(index=False))",
+            [
+                {
+                    "name": "stdout",
+                    "output_type": "stream",
+                    "text": [mk_df.to_string(index=False) + "\n"],
+                }
+            ],
+        )
+    )
 
     # 8. Industrial Hotspot Screening
-    cells.append(make_md_cell(
-        "## 5. Mining & Industrial Hotspot Screening: Bokaro–Dhanbad Stretch\n\n"
-        "The Bokaro–Dhanbad corridor is screened for hypoxia (DO < 4.0), excessive organic load (BOD > 5.0), "
-        "and industrial effluent discharge (COD > 50.0). In accordance with AGENTS.md, synthetic fixtures "
-        "carry the explicit `[INDICATIVE]` status badge."
-    ))
+    cells.append(
+        make_md_cell(
+            "## 5. Mining & Industrial Hotspot Screening: Bokaro–Dhanbad Stretch\n\n"
+            "The Bokaro–Dhanbad corridor is screened for hypoxia (DO < 4.0), excessive organic load (BOD > 5.0), "
+            "and industrial effluent discharge (COD > 50.0). In accordance with AGENTS.md, synthetic fixtures "
+            "carry the explicit `[INDICATIVE]` status badge."
+        )
+    )
 
     hotspots = []
     for _, row in wq_df.iterrows():
-        h = detect_pollution_hotspots(row, row["station_id"], row["date"], provenance=row["provenance"])
+        h = detect_pollution_hotspots(
+            row, row["station_id"], row["date"], provenance=row["provenance"]
+        )
         if h.is_hotspot:
-            hotspots.append({
-                "date": h.date,
-                "station_id": h.station_id,
-                "severity": h.severity,
-                "status_label": h.status_label,
-                "triggers": "; ".join(h.trigger_pollutants),
-            })
+            hotspots.append(
+                {
+                    "date": h.date,
+                    "station_id": h.station_id,
+                    "severity": h.severity,
+                    "status_label": h.status_label,
+                    "triggers": "; ".join(h.trigger_pollutants),
+                }
+            )
     hotspot_df = pd.DataFrame(hotspots)
 
-    cells.append(make_code_cell(
-        "# Pollution hotspot screening summary\n"
-        f"print(f'Total Hotspot Observations Detected: {len(hotspot_df)}')\n"
-        "print(hotspot_df.groupby(['station_id', 'severity']).size().to_string())",
-        [
-            {
-                "name": "stdout",
-                "output_type": "stream",
-                "text": [
-                    f"Total Hotspot Observations Detected: {len(hotspot_df)}\n",
-                    hotspot_df.groupby(["station_id", "severity"]).size().to_string() + "\n",
-                ],
-            }
-        ],
-    ))
+    cells.append(
+        make_code_cell(
+            "# Pollution hotspot screening summary\n"
+            f"print(f'Total Hotspot Observations Detected: {len(hotspot_df)}')\n"
+            "print(hotspot_df.groupby(['station_id', 'severity']).size().to_string())",
+            [
+                {
+                    "name": "stdout",
+                    "output_type": "stream",
+                    "text": [
+                        f"Total Hotspot Observations Detected: {len(hotspot_df)}\n",
+                        hotspot_df.groupby(["station_id", "severity"]).size().to_string() + "\n",
+                    ],
+                }
+            ],
+        )
+    )
 
     # 9. Next-Month WQI Classifier
-    cells.append(make_md_cell(
-        "## 6. Next-Month WQI Class Predictive Modeling\n\n"
-        "A leak-free Random Forest classifier predicts next month's CPCB class (t+1) using current water quality "
-        "and seasonal cycle features. The model is trained on 2019–2022 and tested on 2023."
-    ))
+    cells.append(
+        make_md_cell(
+            "## 6. Next-Month WQI Class Predictive Modeling\n\n"
+            "A leak-free Random Forest classifier predicts next month's CPCB class (t+1) using current water quality "
+            "and seasonal cycle features. The model is trained on 2019–2022 and tested on 2023."
+        )
+    )
 
     bokaro_wq_sorted = bokaro_wq.sort_values("date").reset_index(drop=True)
     train_split = bokaro_wq_sorted[bokaro_wq_sorted["date"] < "2023-01-01"]
@@ -418,41 +507,45 @@ def main() -> None:
     actuals = test_split["cpcb_class"].tolist()
     acc = sum(p == a for p, a in zip(preds, actuals, strict=False)) / max(1, len(actuals))
 
-    cells.append(make_code_cell(
-        "# Fit classifier on train split and predict 2023 monthly classes\n"
-        "clf = NextMonthWQIClassifier(random_state=42)\n"
-        "clf.fit(train_split)\n"
-        "preds = clf.predict(test_split)\n"
-        f"print(f'Test Set Observations: {len(test_split)}')\n"
-        f"print(f'Next-Month CPCB Class Prediction Accuracy: {acc*100:.1f}%')\n"
-        f"print(f'Actual Classes:    {actuals}')\n"
-        f"print(f'Predicted Classes: {preds}')",
-        [
-            {
-                "name": "stdout",
-                "output_type": "stream",
-                "text": [
-                    f"Test Set Observations: {len(test_split)}\n",
-                    f"Next-Month CPCB Class Prediction Accuracy: {acc*100:.1f}%\n",
-                    f"Actual Classes:    {actuals}\n",
-                    f"Predicted Classes: {preds}\n",
-                ],
-            }
-        ],
-    ))
+    cells.append(
+        make_code_cell(
+            "# Fit classifier on train split and predict 2023 monthly classes\n"
+            "clf = NextMonthWQIClassifier(random_state=42)\n"
+            "clf.fit(train_split)\n"
+            "preds = clf.predict(test_split)\n"
+            f"print(f'Test Set Observations: {len(test_split)}')\n"
+            f"print(f'Next-Month CPCB Class Prediction Accuracy: {acc * 100:.1f}%')\n"
+            f"print(f'Actual Classes:    {actuals}')\n"
+            f"print(f'Predicted Classes: {preds}')",
+            [
+                {
+                    "name": "stdout",
+                    "output_type": "stream",
+                    "text": [
+                        f"Test Set Observations: {len(test_split)}\n",
+                        f"Next-Month CPCB Class Prediction Accuracy: {acc * 100:.1f}%\n",
+                        f"Actual Classes:    {actuals}\n",
+                        f"Predicted Classes: {preds}\n",
+                    ],
+                }
+            ],
+        )
+    )
 
     # 10. Summary and Conclusion
-    cells.append(make_md_cell(
-        "## 7. Key Findings & Environmental Advisory\n\n"
-        "1. **Hydrological Low-Flow Stress:** During pre-monsoon months (April–May), discharge in the Damodar mainstream "
-        f"drops below the fitted Q90 threshold ({q90_thresh:.1f} m³/s), creating severe lean-flow stress.\n"
-        "2. **Water Quality & Mining Corridor:** Upper Damodar at Ramgarh maintains Class B/C water quality, but downstream "
-        "Bokaro and Dhanbad stations suffer elevated organic and chemical contamination from industrial and mining discharge.\n"
-        "3. **Seasonal Monsoon Dilution:** Monsoon precipitation from July to September drives significant dilution, lowering "
-        "electrical conductivity by over 30% and elevating dissolved oxygen above 7.0 mg/L.\n"
-        "4. **Predictive Horizon:** Machine learning models successfully forecast next-month river health class with "
-        f"{acc*100:.1f}% accuracy based on seasonality and current contaminant levels."
-    ))
+    cells.append(
+        make_md_cell(
+            "## 7. Key Findings & Environmental Advisory\n\n"
+            "1. **Hydrological Low-Flow Stress:** During pre-monsoon months (April–May), discharge in the Damodar mainstream "
+            f"drops below the fitted Q90 threshold ({q90_thresh:.1f} m³/s), creating severe lean-flow stress.\n"
+            "2. **Water Quality & Mining Corridor:** Upper Damodar at Ramgarh maintains Class B/C water quality, but downstream "
+            "Bokaro and Dhanbad stations suffer elevated organic and chemical contamination from industrial and mining discharge.\n"
+            "3. **Seasonal Monsoon Dilution:** Monsoon precipitation from July to September drives significant dilution, lowering "
+            "electrical conductivity by over 30% and elevating dissolved oxygen above 7.0 mg/L.\n"
+            "4. **Predictive Horizon:** Machine learning models successfully forecast next-month river health class with "
+            f"{acc * 100:.1f}% accuracy based on seasonality and current contaminant levels."
+        )
+    )
 
     # Write notebook file
     nb_dict = {

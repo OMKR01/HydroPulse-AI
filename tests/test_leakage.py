@@ -149,9 +149,7 @@ def test_train_only_scaler_isolation(synthetic_timeseries: pd.DataFrame):
 
     # Inverse transform recovers original test values
     inverted_test = scaler.inverse_transform(scaled_test)
-    np.testing.assert_allclose(
-        inverted_test["discharge_m3s"], test_df["discharge_m3s"], rtol=1e-5
-    )
+    np.testing.assert_allclose(inverted_test["discharge_m3s"], test_df["discharge_m3s"], rtol=1e-5)
 
 
 def test_upstream_feature_leakage(synthetic_timeseries: pd.DataFrame):
@@ -257,4 +255,3 @@ def test_fit_spi_gamma_direct():
     spi_vals = transform_accumulated_to_spi(data, alpha, beta, q)
     assert len(spi_vals) == len(data)
     assert not np.isnan(spi_vals[2])
-

@@ -62,7 +62,9 @@ def main() -> None:
             }
 
     # 3. Next-month predictive classifier evaluation
-    bokaro_wq = wq_df[wq_df["station_id"] == "damodar_bokaro"].sort_values("date").reset_index(drop=True)
+    bokaro_wq = (
+        wq_df[wq_df["station_id"] == "damodar_bokaro"].sort_values("date").reset_index(drop=True)
+    )
     train_split = bokaro_wq[bokaro_wq["date"] < "2023-01-01"]
     test_split = bokaro_wq[bokaro_wq["date"] >= "2023-01-01"]
 
@@ -70,7 +72,9 @@ def main() -> None:
     clf.fit(train_split)
     preds = clf.predict(test_split)
     actuals = test_split["cpcb_class"].tolist()
-    accuracy = float(sum(p == a for p, a in zip(preds, actuals, strict=False)) / max(1, len(actuals)))
+    accuracy = float(
+        sum(p == a for p, a in zip(preds, actuals, strict=False)) / max(1, len(actuals))
+    )
 
     # 4. Drought low-flow tracking on representative discharge sequence
     rng = np.random.default_rng(42)
@@ -121,7 +125,7 @@ def main() -> None:
 
     print("Successfully updated reports/metrics.json with Phase 4 metrics.")
     print(f"Fitted Q90: {q90_thresh:.2f} m3/s, Low flow %: {low_flow_pct}%")
-    print(f"Next-Month Classifier Accuracy: {accuracy*100:.1f}%")
+    print(f"Next-Month Classifier Accuracy: {accuracy * 100:.1f}%")
 
 
 if __name__ == "__main__":

@@ -166,7 +166,9 @@ def detect_outliers(
         df_out.loc[extreme_p, "is_outlier_precip"] = True
 
         for idx in df_out[neg_p | extreme_p].index:
-            reason = "negative_rainfall" if df_out.loc[idx, precip_col] < 0 else "exceeds_physical_max"
+            reason = (
+                "negative_rainfall" if df_out.loc[idx, precip_col] < 0 else "exceeds_physical_max"
+            )
             curr = df_out.loc[idx, "outlier_reason"]
             df_out.loc[idx, "outlier_reason"] = f"{curr}|{reason}".strip("|")
 

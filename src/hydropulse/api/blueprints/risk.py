@@ -119,7 +119,11 @@ def get_risk_map():
 
         color = color_map[level]
         msg_en, msg_hi = _get_bilingual_alert_messages(
-            s["name"], s["river"], level, base_flow, thresholds[level.lower()] if level != "Normal" else thresholds["watch"]
+            s["name"],
+            s["river"],
+            level,
+            base_flow,
+            thresholds[level.lower()] if level != "Normal" else thresholds["watch"],
         )
 
         features.append(
@@ -184,7 +188,9 @@ def get_active_alerts():
             continue
 
         th_val = thresholds[level.lower()]
-        msg_en, msg_hi = _get_bilingual_alert_messages(s["name"], s["river"], level, peak_flow, th_val)
+        msg_en, msg_hi = _get_bilingual_alert_messages(
+            s["name"], s["river"], level, peak_flow, th_val
+        )
         reasons = _get_explainability_reasons(sid, level, peak_flow)
 
         alerts.append(

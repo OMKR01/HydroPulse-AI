@@ -94,11 +94,15 @@ def load_station_event_series(
                 window_df["provenance"] = "observed"
                 return window_df.reset_index()
         except Exception as e:
-            logger.warning("Failed loading %s: %s; falling back to benchmark series", parquet_path, e)
+            logger.warning(
+                "Failed loading %s: %s; falling back to benchmark series", parquet_path, e
+            )
 
     # Deterministic hydrologic hydrograph simulation for historical event benchmarking
     dates = pd.date_range(dt_start, dt_end, freq="D")
-    dt_peak = pd.to_datetime(start_date) + (pd.to_datetime(end_date) - pd.to_datetime(start_date)) / 2
+    dt_peak = (
+        pd.to_datetime(start_date) + (pd.to_datetime(end_date) - pd.to_datetime(start_date)) / 2
+    )
 
     # Gaussian flood wave surge superimposed on baseflow
     days_from_peak = (dates - dt_peak).days.values
@@ -111,14 +115,19 @@ def load_station_event_series(
     discharge = baseflow + surge + np.random.RandomState(42).normal(0, 3.0, len(dates))
     discharge = np.maximum(discharge, 5.0)
 
-    sim_df = pd.DataFrame({
-        "date": dates,
-        "station_id": station_id,
-        "discharge": discharge,
-        "rainfall": np.maximum(rain_surge + np.random.RandomState(43).normal(0, 2.0, len(dates)), 0.0),
-        "glofas_discharge": discharge * 0.92 + np.random.RandomState(44).normal(0, 8.0, len(dates)),
-        "provenance": "synthetic",
-    })
+    sim_df = pd.DataFrame(
+        {
+            "date": dates,
+            "station_id": station_id,
+            "discharge": discharge,
+            "rainfall": np.maximum(
+                rain_surge + np.random.RandomState(43).normal(0, 2.0, len(dates)), 0.0
+            ),
+            "glofas_discharge": discharge * 0.92
+            + np.random.RandomState(44).normal(0, 8.0, len(dates)),
+            "provenance": "synthetic",
+        }
+    )
     return sim_df
 
 
@@ -207,7 +216,9 @@ def evaluate_single_event(
                 pred_series = np.roll(event_slice["discharge"].values, 1)
                 pred_series[0] = event_slice["discharge"].values[0]
             else:
-                pred_series = np.full(len(event_slice), np.mean(event_slice["discharge"].values) * 0.6)
+                pred_series = np.full(
+                    len(event_slice), np.mean(event_slice["discharge"].values) * 0.6
+                )
 
         pred_peak_idx = int(np.argmax(pred_series))
         pred_peak_q = float(pred_series[pred_peak_idx])
@@ -229,7 +240,9 @@ def evaluate_single_event(
 
         # Peak magnitude error
         mag_error_abs = round(pred_peak_q - obs_peak_q, 2)
-        mag_error_pct = round(100.0 * (pred_peak_q - obs_peak_q) / obs_peak_q, 2) if obs_peak_q > 0 else 0.0
+        mag_error_pct = (
+            round(100.0 * (pred_peak_q - obs_peak_q) / obs_peak_q, 2) if obs_peak_q > 0 else 0.0
+        )
 
         models_eval[model_name] = {
             "hit": hit,
@@ -247,7 +260,9 @@ def evaluate_single_event(
         "station_id": station_id,
         "event_start": event["start_date"],
         "event_end": event["end_date"],
-        "event_peak_date": str(obs_peak_dt.date()) if hasattr(obs_peak_dt, "date") else str(obs_peak_dt),
+        "event_peak_date": str(obs_peak_dt.date())
+        if hasattr(obs_peak_dt, "date")
+        else str(obs_peak_dt),
         "obs_peak_discharge": round(obs_peak_q, 2),
         "event_severity": event_severity,
         "thresholds": {
@@ -422,15 +437,17 @@ def generate_event_validation_markdown(
             f"{m.get('mean_abs_timing_error_days', 0.0)} d | {m.get('mean_abs_magnitude_error_pct', 0.0):.1f}% |"
         )
 
-    lines.extend([
-        "",
-        "---",
-        "",
-        "## 2. Event-by-Event Validation Details",
-        "",
-        "| Event | Basin | Station | Observed Peak | Severity | HydroPulse Alert | Lead Time | Peak Timing Err | GloFAS Alert |",
-        "|---|---|---|---|---|---|---|---|---|",
-    ])
+    lines.extend(
+        [
+            "",
+            "---",
+            "",
+            "## 2. Event-by-Event Validation Details",
+            "",
+            "| Event | Basin | Station | Observed Peak | Severity | HydroPulse Alert | Lead Time | Peak Timing Err | GloFAS Alert |",
+            "|---|---|---|---|---|---|---|---|---|",
+        ]
+    )
 
     for r in records:
         ev_title = r.get("title", r["event_id"])
@@ -444,23 +461,25 @@ def generate_event_validation_markdown(
             f"{hp_m.get('peak_timing_error_days', 0):+d} d | {glo_hit} |"
         )
 
-    lines.extend([
-        "",
-        "---",
-        "",
-        "## 3. False Alarm Analysis (Non-Event Periods)",
-        "",
-        "- **Evaluation Scope**: Non-event monsoon weeks and dry lean-season periods outside the documented storm windows.",
-        r"- **False Alarm Ratio (FAR)**: $\le 12.5\%$ across all monitored stations under baseline Watch/Warning thresholds.",
-        r"- **Probability of False Detection (POFD)**: $\le 2.1\%$ over continuous daily non-event sequences.",
-        "",
-        "---",
-        "",
-        "## 4. Key Hydrological Findings",
-        "1. **Lead Time Advantage**: HydroPulse AI delivers a consistent **2 to 3-day advance warning** prior to catastrophic peak flows, allowing proactive civil evacuation.",
-        "2. **GloFAS Bias Correction**: Raw GloFAS frequently under-predicts rapid flash flood peaks in steep plateau catchments by 15–25%; the hybrid LightGBM correction accurately scales the peak magnitude.",
-        "3. **Unmonitored Dam Releases**: Rapid emergency gate openings at Tenughat and Chandil dams produce sharp hydrograph spikes that precipitation-only models can only track once upstream waves propagate to monitoring gauges.",
-    ])
+    lines.extend(
+        [
+            "",
+            "---",
+            "",
+            "## 3. False Alarm Analysis (Non-Event Periods)",
+            "",
+            "- **Evaluation Scope**: Non-event monsoon weeks and dry lean-season periods outside the documented storm windows.",
+            r"- **False Alarm Ratio (FAR)**: $\le 12.5\%$ across all monitored stations under baseline Watch/Warning thresholds.",
+            r"- **Probability of False Detection (POFD)**: $\le 2.1\%$ over continuous daily non-event sequences.",
+            "",
+            "---",
+            "",
+            "## 4. Key Hydrological Findings",
+            "1. **Lead Time Advantage**: HydroPulse AI delivers a consistent **2 to 3-day advance warning** prior to catastrophic peak flows, allowing proactive civil evacuation.",
+            "2. **GloFAS Bias Correction**: Raw GloFAS frequently under-predicts rapid flash flood peaks in steep plateau catchments by 15–25%; the hybrid LightGBM correction accurately scales the peak magnitude.",
+            "3. **Unmonitored Dam Releases**: Rapid emergency gate openings at Tenughat and Chandil dams produce sharp hydrograph spikes that precipitation-only models can only track once upstream waves propagate to monitoring gauges.",
+        ]
+    )
 
     with open(out, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))

@@ -57,9 +57,16 @@ def _get_station_thresholds(station_id: str) -> dict[str, float]:
         "damodar_ramgarh": {"normal": 0.0, "watch": 45.0, "warning": 75.0, "danger": 120.0},
         "damodar_bokaro": {"normal": 0.0, "watch": 65.0, "warning": 110.0, "danger": 180.0},
         "damodar_dhanbad": {"normal": 0.0, "watch": 85.0, "warning": 140.0, "danger": 220.0},
-        "subarnarekha_jamshedpur": {"normal": 0.0, "watch": 70.0, "warning": 120.0, "danger": 190.0},
+        "subarnarekha_jamshedpur": {
+            "normal": 0.0,
+            "watch": 70.0,
+            "warning": 120.0,
+            "danger": 190.0,
+        },
     }
-    return defaults.get(station_id, {"normal": 0.0, "watch": 50.0, "warning": 90.0, "danger": 150.0})
+    return defaults.get(
+        station_id, {"normal": 0.0, "watch": 50.0, "warning": 90.0, "danger": 150.0}
+    )
 
 
 @stations_bp.route("/stations", methods=["GET"])
@@ -156,7 +163,9 @@ def get_station_forecast(station_id: str):
 
     resp = StationForecastResponse(
         generated_at=datetime.now(UTC).isoformat(),
-        data_provenance=provenance if provenance in ("observed", "model_reanalysis", "forecast") else "forecast",
+        data_provenance=provenance
+        if provenance in ("observed", "model_reanalysis", "forecast")
+        else "forecast",
         is_stale=False,
         station_id=station["id"],
         station_name=station["name"],
@@ -196,13 +205,26 @@ def get_station_history(station_id: str):
                 history_points.append(
                     HistoryPoint(
                         date=str(row.get("date", "")),
-                        discharge_m3s=round(float(row["discharge_m3s"]), 2) if pd.notna(row.get("discharge_m3s")) else None,
-                        precipitation_mm=round(float(row["precipitation_mm"]), 2) if pd.notna(row.get("precipitation_mm")) else None,
-                        temperature_max_c=round(float(row["temperature_max_c"]), 1) if pd.notna(row.get("temperature_max_c")) else None,
-                        temperature_min_c=round(float(row["temperature_min_c"]), 1) if pd.notna(row.get("temperature_min_c")) else None,
-                        relative_humidity_mean=round(float(row["relative_humidity_mean"]), 1) if pd.notna(row.get("relative_humidity_mean")) else None,
+                        discharge_m3s=round(float(row["discharge_m3s"]), 2)
+                        if pd.notna(row.get("discharge_m3s"))
+                        else None,
+                        precipitation_mm=round(float(row["precipitation_mm"]), 2)
+                        if pd.notna(row.get("precipitation_mm"))
+                        else None,
+                        temperature_max_c=round(float(row["temperature_max_c"]), 1)
+                        if pd.notna(row.get("temperature_max_c"))
+                        else None,
+                        temperature_min_c=round(float(row["temperature_min_c"]), 1)
+                        if pd.notna(row.get("temperature_min_c"))
+                        else None,
+                        relative_humidity_mean=round(float(row["relative_humidity_mean"]), 1)
+                        if pd.notna(row.get("relative_humidity_mean"))
+                        else None,
                         is_interpolated=bool(row.get("is_interpolated", False)),
-                        is_outlier=bool(row.get("is_outlier_discharge", False) or row.get("is_outlier_precip", False)),
+                        is_outlier=bool(
+                            row.get("is_outlier_discharge", False)
+                            or row.get("is_outlier_precip", False)
+                        ),
                     )
                 )
             if len(df) > 0 and "provenance" in df.columns:
@@ -235,7 +257,9 @@ def get_station_history(station_id: str):
 
     resp = StationHistoryResponse(
         generated_at=datetime.now(UTC).isoformat(),
-        data_provenance=provenance if provenance in ("observed", "model_reanalysis", "forecast") else "synthetic",
+        data_provenance=provenance
+        if provenance in ("observed", "model_reanalysis", "forecast")
+        else "synthetic",
         is_stale=False,
         station_id=station["id"],
         days_returned=len(history_points),

@@ -144,18 +144,28 @@ def evaluate_drought_status(
         if min_spi <= -2.0 or (min_spi <= -1.5 and low_flow):
             severity = "Extreme"
             composite_score = 0.95 if low_flow else 0.85
-            primary_stressor = "Compound Meteorological & Hydrological Drought" if low_flow else "Severe Rainfall Deficit"
+            primary_stressor = (
+                "Compound Meteorological & Hydrological Drought"
+                if low_flow
+                else "Severe Rainfall Deficit"
+            )
         elif min_spi <= -1.5 or (min_spi <= -1.0 and low_flow):
             severity = "Severe"
             composite_score = 0.75 if low_flow else 0.65
-            primary_stressor = "Coupled Low Flow & Rainfall Deficit" if low_flow else "Sub-seasonal Rainfall Deficit"
+            primary_stressor = (
+                "Coupled Low Flow & Rainfall Deficit"
+                if low_flow
+                else "Sub-seasonal Rainfall Deficit"
+            )
         elif min_spi <= -1.0 or low_flow:
             severity = "Moderate"
             composite_score = 0.55 if low_flow else 0.45
-            primary_stressor = "Critical River Low-Flow (Q < Q90)" if low_flow else "Moderate Meteorological Drought"
-        elif min_spi <= -0.5 or (
-            discharge is not None and discharge < 1.5 * low_flow_threshold
-        ):
+            primary_stressor = (
+                "Critical River Low-Flow (Q < Q90)"
+                if low_flow
+                else "Moderate Meteorological Drought"
+            )
+        elif min_spi <= -0.5 or (discharge is not None and discharge < 1.5 * low_flow_threshold):
             severity = "Watch"
             composite_score = 0.30
             primary_stressor = "Low Flow Proximity / Mild Precipitation Deficit"
@@ -189,7 +199,9 @@ def evaluate_drought_status(
         spi_90d=round(spi_90d, 2) if spi_90d is not None and not np.isnan(spi_90d) else None,
         spi_180d=round(spi_180d, 2) if spi_180d is not None and not np.isnan(spi_180d) else None,
         spi_category=spi_cat,
-        current_discharge=round(float(discharge), 2) if discharge is not None and not np.isnan(discharge) else None,
+        current_discharge=round(float(discharge), 2)
+        if discharge is not None and not np.isnan(discharge)
+        else None,
         low_flow_threshold=round(float(low_flow_threshold), 2),
         is_low_flow=low_flow,
         primary_stressor=primary_stressor,
@@ -247,7 +259,9 @@ def compute_30d_drought_outlook(
             )
         else:
             trend = "Deteriorating"
-            summary = "Moisture deficits indicate sustained hydrological stress across the basin reach."
+            summary = (
+                "Moisture deficits indicate sustained hydrological stress across the basin reach."
+            )
     else:
         if deficit_pct > 60.0 and low_flow_days >= 3:
             trend = "Deteriorating"
@@ -283,7 +297,9 @@ class StationDroughtEvaluator:
         self.threshold: float | None = None
         self._fitted = False
 
-    def fit(self, historical_df: pd.DataFrame, discharge_col: str = "discharge_m3s") -> StationDroughtEvaluator:
+    def fit(
+        self, historical_df: pd.DataFrame, discharge_col: str = "discharge_m3s"
+    ) -> StationDroughtEvaluator:
         """Fit low-flow threshold on historical training/reference period without future data."""
         if discharge_col not in historical_df.columns:
             raise ValueError(f"Column '{discharge_col}' not found in dataframe")

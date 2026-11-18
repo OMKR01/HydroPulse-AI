@@ -52,6 +52,7 @@ def fetch_endpoint(path: str, local_client=None) -> dict | None:
         # Fallback to local application factory client if server not listening on socket
         try:
             from src.hydropulse.api.factory import create_app
+
             app = create_app()
             client = app.test_client()
             resp = client.get(path, headers=HEADERS)
@@ -94,7 +95,9 @@ def run_full_potential_demo() -> None:
 
     # 3. 7-Day Quantile Flood Forecast (Bokaro Station)
     station_id = "damodar_bokaro"
-    print(f"\n[3/6] Querying 7-Day Discharge Forecast (/api/v1/stations/{station_id}/forecast?days=7)...")
+    print(
+        f"\n[3/6] Querying 7-Day Discharge Forecast (/api/v1/stations/{station_id}/forecast?days=7)..."
+    )
     forecast = fetch_endpoint(f"/api/v1/stations/{station_id}/forecast?days=7")
     if forecast:
         print(f"  -> Station:    {forecast.get('station_name')} ({forecast.get('basin')} Basin)")
@@ -109,7 +112,9 @@ def run_full_potential_demo() -> None:
             p50 = pt.get("discharge_p50_m3s", 0)
             p90 = pt.get("discharge_p90_m3s", 0)
             lvl = pt.get("alert_level")
-            print(f"     +{h}d | t+{h:<5} | {d} | {p10:8.2f}  | {p50:11.2f}  | {p90:10.2f}  | {lvl}")
+            print(
+                f"     +{h}d | t+{h:<5} | {d} | {p10:8.2f}  | {p50:11.2f}  | {p90:10.2f}  | {lvl}"
+            )
 
     # 4. Water Quality Index (CPCB Standards)
     print(f"\n[4/6] Querying Water Quality Index (/api/v1/water-quality/{station_id})...")
@@ -128,7 +133,9 @@ def run_full_potential_demo() -> None:
     drought = fetch_endpoint(f"/api/v1/drought/{station_id}")
     if drought:
         low_flow = drought.get("is_low_flow", False)
-        status = drought.get("low_flow_status") or ("Low-Flow Stress" if low_flow else "Normal Flow")
+        status = drought.get("low_flow_status") or (
+            "Low-Flow Stress" if low_flow else "Normal Flow"
+        )
         print(f"  -> Low-Flow Alert:   {low_flow} ({status})")
         print(f"  -> SPI-1 (30 Days):  {drought.get('spi_1', 'N/A')}")
         print(f"  -> SPI-3 (90 Days):  {drought.get('spi_3', 'N/A')}")
@@ -145,7 +152,9 @@ def run_full_potential_demo() -> None:
         if best:
             print("  -> Current Best Hydrologic Models (from reports/metrics.json):")
             for k, v in list(best.items())[:3]:
-                print(f"     * {k}: Model={v.get('model')} | NSE={v.get('NSE')} | KGE={v.get('KGE')} | RMSE={v.get('RMSE')}")
+                print(
+                    f"     * {k}: Model={v.get('model')} | NSE={v.get('NSE')} | KGE={v.get('KGE')} | RMSE={v.get('RMSE')}"
+                )
 
     print("\n" + "=" * 78)
     print("  DEMONSTRATION COMPLETED SUCCESSFULLY")

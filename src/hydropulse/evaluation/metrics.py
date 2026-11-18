@@ -122,9 +122,15 @@ def alert_metrics(
     mask = ~(np.isnan(obs) | np.isnan(pred))
 
     _nan_result: dict[str, Any] = {
-        "POD": float("nan"), "FAR": float("nan"), "CSI": float("nan"),
-        "F1": float("nan"), "PR_AUC": float("nan"),
-        "TP": 0, "FP": 0, "FN": 0, "TN": 0,
+        "POD": float("nan"),
+        "FAR": float("nan"),
+        "CSI": float("nan"),
+        "F1": float("nan"),
+        "PR_AUC": float("nan"),
+        "TP": 0,
+        "FP": 0,
+        "FN": 0,
+        "TN": 0,
     }
     if mask.sum() == 0:
         return _nan_result
@@ -157,9 +163,15 @@ def alert_metrics(
         return round(v, 4) if not np.isnan(v) else float("nan")
 
     return {
-        "POD": _r(pod), "FAR": _r(far_val), "CSI": _r(csi_val),
-        "F1": _r(f1_val), "PR_AUC": _r(pr_auc),
-        "TP": tp, "FP": fp, "FN": fn, "TN": tn,
+        "POD": _r(pod),
+        "FAR": _r(far_val),
+        "CSI": _r(csi_val),
+        "F1": _r(f1_val),
+        "PR_AUC": _r(pr_auc),
+        "TP": tp,
+        "FP": fp,
+        "FN": fn,
+        "TN": tn,
     }
 
 

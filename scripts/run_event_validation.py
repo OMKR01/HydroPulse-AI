@@ -45,15 +45,37 @@ def generate_event_plots(events: list[dict], plots_dir: Path = Path("reports/plo
         dates = pd.to_datetime(df["date"])
 
         # Plot observed/reanalysis and models
-        ax.plot(dates, df["discharge"], color="#0f172a", linewidth=2.0, label="Observed / Model Flow")
-        ax.plot(dates, df["discharge"] * 0.96 + 5.0, color="#0284c7", linewidth=2.0, linestyle="--", label="HydroPulse AI (t+2d)")
-        ax.plot(dates, df["glofas_discharge"], color="#64748b", linewidth=1.5, linestyle=":", label="Raw GloFAS v4")
+        ax.plot(
+            dates, df["discharge"], color="#0f172a", linewidth=2.0, label="Observed / Model Flow"
+        )
+        ax.plot(
+            dates,
+            df["discharge"] * 0.96 + 5.0,
+            color="#0284c7",
+            linewidth=2.0,
+            linestyle="--",
+            label="HydroPulse AI (t+2d)",
+        )
+        ax.plot(
+            dates,
+            df["glofas_discharge"],
+            color="#64748b",
+            linewidth=1.5,
+            linestyle=":",
+            label="Raw GloFAS v4",
+        )
 
         # Thresholds
-        ax.axhline(160.0, color="#f59e0b", linestyle="--", linewidth=1.2, label="Watch Level (160 m³/s)")
-        ax.axhline(240.0, color="#f43f5e", linestyle="--", linewidth=1.2, label="Warning Level (240 m³/s)")
+        ax.axhline(
+            160.0, color="#f59e0b", linestyle="--", linewidth=1.2, label="Watch Level (160 m³/s)"
+        )
+        ax.axhline(
+            240.0, color="#f43f5e", linestyle="--", linewidth=1.2, label="Warning Level (240 m³/s)"
+        )
 
-        ax.set_title(f"Event Hydrograph: {ev['title']} ({target_st})", fontsize=11, fontweight="bold")
+        ax.set_title(
+            f"Event Hydrograph: {ev['title']} ({target_st})", fontsize=11, fontweight="bold"
+        )
         ax.set_xlabel("Date", fontsize=9)
         ax.set_ylabel("Discharge (m³/s)", fontsize=9)
         ax.grid(True, linestyle="--", alpha=0.4)
@@ -71,7 +93,9 @@ def main() -> None:
     print("===========================================================")
 
     results = run_full_event_validation()
-    print(f"Loaded and evaluated {results['events_count']} documented events across {results['total_evaluations']} station-event pairs.")
+    print(
+        f"Loaded and evaluated {results['events_count']} documented events across {results['total_evaluations']} station-event pairs."
+    )
 
     # Generate Markdown Report
     report_path = Path("reports/event_validation.md")
@@ -104,7 +128,9 @@ def main() -> None:
 
     print("\nModel Benchmark Summary:")
     for m, d in results["model_summary"].items():
-        print(f"  - {m:<18}: POD = {d['POD']:.2%}, Lead Time = {d['mean_lead_time_days']:.1f} d, Timing Err = {d['mean_abs_timing_error_days']:.1f} d")
+        print(
+            f"  - {m:<18}: POD = {d['POD']:.2%}, Lead Time = {d['mean_lead_time_days']:.1f} d, Timing Err = {d['mean_abs_timing_error_days']:.1f} d"
+        )
 
     print("\nSUCCESS: Phase 7 Historical flood validation complete!")
 

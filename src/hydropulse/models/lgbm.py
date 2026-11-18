@@ -28,8 +28,13 @@ logger = logging.getLogger(__name__)
 FORECAST_HORIZONS = 7
 
 FEATURE_EXCLUDE = {
-    "date", "station_id", "provenance", "is_interpolated",
-    "is_outlier_precip", "is_outlier_discharge", "outlier_reason",
+    "date",
+    "station_id",
+    "provenance",
+    "is_interpolated",
+    "is_outlier_precip",
+    "is_outlier_discharge",
+    "outlier_reason",
     "discharge_m3s",
     *[f"target_discharge_h{h}" for h in range(1, FORECAST_HORIZONS + 1)],
 }
@@ -54,9 +59,7 @@ _DEFAULT_PARAMS: dict[str, Any] = {
 def _select_features(df: pd.DataFrame) -> list[str]:
     """Return numeric, leak-free feature column names."""
     return [
-        c for c in df.columns
-        if c not in FEATURE_EXCLUDE
-        and pd.api.types.is_numeric_dtype(df[c])
+        c for c in df.columns if c not in FEATURE_EXCLUDE and pd.api.types.is_numeric_dtype(df[c])
     ]
 
 
@@ -125,7 +128,9 @@ class LGBMForecaster:
                 glofas_col = "discharge_mean_m3s"
                 obs_col = "discharge_m3s"
                 if glofas_col in sub.columns and obs_col in sub.columns:
-                    glofas_ahead = sub[glofas_col].shift(-h).reindex(sub.index).to_numpy(dtype=float)
+                    glofas_ahead = (
+                        sub[glofas_col].shift(-h).reindex(sub.index).to_numpy(dtype=float)
+                    )
                     obs_ahead = sub[target_col].to_numpy(dtype=float)
                     y_train = obs_ahead - glofas_ahead
                     # Drop rows where residual is NaN
@@ -135,7 +140,11 @@ class LGBMForecaster:
                         logger.warning("[%s] Too few valid residual rows for h=%d.", self.name, h)
                         continue
                 else:
-                    logger.info("[%s] GloFAS columns not available; falling back to raw target for h=%d.", self.name, h)
+                    logger.info(
+                        "[%s] GloFAS columns not available; falling back to raw target for h=%d.",
+                        self.name,
+                        h,
+                    )
 
             model = lgb.LGBMRegressor(**self._params)
 
@@ -144,13 +153,17 @@ class LGBMForecaster:
                 X_val = sub_val[self._feature_cols].to_numpy(dtype=float)
                 y_val = sub_val[target_col].to_numpy(dtype=float)
                 import warnings
+
                 with warnings.catch_warnings():
                     warnings.filterwarnings("ignore", category=UserWarning)
                     model.fit(
-                        X_train, y_train,
+                        X_train,
+                        y_train,
                         eval_set=[(X_val, y_val)],
-                        callbacks=[lgb.early_stopping(stopping_rounds=30, verbose=False),
-                                   lgb.log_evaluation(period=-1)],
+                        callbacks=[
+                            lgb.early_stopping(stopping_rounds=30, verbose=False),
+                            lgb.log_evaluation(period=-1),
+                        ],
                     )
             else:
                 model.fit(X_train, y_train)

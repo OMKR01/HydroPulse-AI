@@ -65,7 +65,9 @@ def _git_sha() -> str | None:
     try:
         result = subprocess.run(
             ["git", "rev-parse", "--short", "HEAD"],
-            capture_output=True, text=True, timeout=5,
+            capture_output=True,
+            text=True,
+            timeout=5,
         )
         return result.stdout.strip() if result.returncode == 0 else None
     except Exception:
@@ -138,30 +140,36 @@ def _generate_synthetic_station_features(
 
     discharge_mean_m3s = np.maximum(discharge * 0.92 + rng.normal(0, 1.5, n), 1.5)
 
-    df = pd.DataFrame({
-        "date": dates.strftime("%Y-%m-%d"),
-        "station_id": station_id,
-        "precipitation_mm": np.round(precip, 2),
-        "temperature_max_c": np.round(temp_max, 2),
-        "temperature_min_c": np.round(temp_min, 2),
-        "relative_humidity_mean": np.round(rel_hum, 2),
-        "discharge_m3s": np.round(discharge, 2),
-        "discharge_mean_m3s": np.round(discharge_mean_m3s, 2),
-        "discharge_p25_m3s": np.round(discharge_mean_m3s * 0.85, 2),
-        "discharge_p75_m3s": np.round(discharge_mean_m3s * 1.15, 2),
-        "provenance": "synthetic",
-        "is_interpolated": False,
-        "is_outlier_precip": False,
-        "is_outlier_discharge": False,
-        "outlier_reason": "",
-    })
+    df = pd.DataFrame(
+        {
+            "date": dates.strftime("%Y-%m-%d"),
+            "station_id": station_id,
+            "precipitation_mm": np.round(precip, 2),
+            "temperature_max_c": np.round(temp_max, 2),
+            "temperature_min_c": np.round(temp_min, 2),
+            "relative_humidity_mean": np.round(rel_hum, 2),
+            "discharge_m3s": np.round(discharge, 2),
+            "discharge_mean_m3s": np.round(discharge_mean_m3s, 2),
+            "discharge_p25_m3s": np.round(discharge_mean_m3s * 0.85, 2),
+            "discharge_p75_m3s": np.round(discharge_mean_m3s * 1.15, 2),
+            "provenance": "synthetic",
+            "is_interpolated": False,
+            "is_outlier_precip": False,
+            "is_outlier_discharge": False,
+            "outlier_reason": "",
+        }
+    )
 
     for lag in range(1, 15):
         df[f"precip_lag_{lag}"] = df["precipitation_mm"].shift(lag).fillna(0.0)
 
     for r in [3, 7, 14, 30]:
-        df[f"precip_roll_sum_{r}d"] = df["precipitation_mm"].shift(1).rolling(r, min_periods=1).sum().fillna(0.0)
-    df["antecedent_precipitation_index"] = df["precipitation_mm"].shift(1).rolling(14, min_periods=1).mean().fillna(0.0)
+        df[f"precip_roll_sum_{r}d"] = (
+            df["precipitation_mm"].shift(1).rolling(r, min_periods=1).sum().fillna(0.0)
+        )
+    df["antecedent_precipitation_index"] = (
+        df["precipitation_mm"].shift(1).rolling(14, min_periods=1).mean().fillna(0.0)
+    )
 
     df["doy_sin"] = np.sin(2.0 * np.pi * doy / 365.25)
     df["doy_cos"] = np.cos(2.0 * np.pi * doy / 365.25)
@@ -171,21 +179,42 @@ def _generate_synthetic_station_features(
 
     for lag in range(1, 8):
         df[f"discharge_lag_{lag}"] = df["discharge_m3s"].shift(lag).bfill().ffill()
-    df["discharge_roll_mean_3d"] = df["discharge_m3s"].shift(1).rolling(3, min_periods=1).mean().bfill().ffill()
-    df["discharge_roll_mean_7d"] = df["discharge_m3s"].shift(1).rolling(7, min_periods=1).mean().bfill().ffill()
+    df["discharge_roll_mean_3d"] = (
+        df["discharge_m3s"].shift(1).rolling(3, min_periods=1).mean().bfill().ffill()
+    )
+    df["discharge_roll_mean_7d"] = (
+        df["discharge_m3s"].shift(1).rolling(7, min_periods=1).mean().bfill().ffill()
+    )
 
     df["upstream_discharge_lag_1"] = df["discharge_lag_1"] * 0.8
     df["upstream_discharge_lag_2"] = df["discharge_lag_2"] * 0.8
     df["upstream_precip_roll_3d"] = df["precip_roll_sum_3d"] * 0.9
 
     df["precip_acc_30d"] = df["precip_roll_sum_30d"]
-    df["spi_30d"] = np.clip((df["precip_acc_30d"] - df["precip_acc_30d"].mean()) / (df["precip_acc_30d"].std() + 1e-6), -3.0, 3.0)
+    df["spi_30d"] = np.clip(
+        (df["precip_acc_30d"] - df["precip_acc_30d"].mean()) / (df["precip_acc_30d"].std() + 1e-6),
+        -3.0,
+        3.0,
+    )
     df["spi_30d_category"] = "Near Normal"
-    df["precip_acc_90d"] = df["precipitation_mm"].shift(1).rolling(90, min_periods=1).sum().fillna(0.0)
-    df["spi_90d"] = np.clip((df["precip_acc_90d"] - df["precip_acc_90d"].mean()) / (df["precip_acc_90d"].std() + 1e-6), -3.0, 3.0)
+    df["precip_acc_90d"] = (
+        df["precipitation_mm"].shift(1).rolling(90, min_periods=1).sum().fillna(0.0)
+    )
+    df["spi_90d"] = np.clip(
+        (df["precip_acc_90d"] - df["precip_acc_90d"].mean()) / (df["precip_acc_90d"].std() + 1e-6),
+        -3.0,
+        3.0,
+    )
     df["spi_90d_category"] = "Near Normal"
-    df["precip_acc_180d"] = df["precipitation_mm"].shift(1).rolling(180, min_periods=1).sum().fillna(0.0)
-    df["spi_180d"] = np.clip((df["precip_acc_180d"] - df["precip_acc_180d"].mean()) / (df["precip_acc_180d"].std() + 1e-6), -3.0, 3.0)
+    df["precip_acc_180d"] = (
+        df["precipitation_mm"].shift(1).rolling(180, min_periods=1).sum().fillna(0.0)
+    )
+    df["spi_180d"] = np.clip(
+        (df["precip_acc_180d"] - df["precip_acc_180d"].mean())
+        / (df["precip_acc_180d"].std() + 1e-6),
+        -3.0,
+        3.0,
+    )
     df["spi_180d_category"] = "Near Normal"
 
     df["static_elevation_m"] = 320.0
@@ -218,13 +247,15 @@ def _load_station_df(
             return df
         logger.warning(
             "Parquet for %s has only %d rows (<100); generating synthetic historical features.",
-            station_id, len(df),
+            station_id,
+            len(df),
         )
         return _generate_synthetic_station_features(station_id)
 
     logger.warning("Parquet not found for %s; attempting builder from DB.", station_id)
     try:
         from src.hydropulse.features.builder import build_station_features
+
         df = build_station_features(station_id)
         if not df.empty and len(df) >= 100:
             pq_path.parent.mkdir(parents=True, exist_ok=True)
@@ -273,16 +304,18 @@ def _build_eval_records(
         obs_yr = grp[target_col].to_numpy(dtype=float)
         pred_yr = preds[idx, h_idx] if preds.ndim == 2 else preds[idx]
         nse_val = _nse(obs_yr, pred_yr)
-        records.append({
-            "model_name": model_name,
-            "station_id": station_id,
-            "year": int(year),
-            "horizon_days": horizon,
-            "NSE": nse_val,
-            "dates": grp["date"].to_numpy(),
-            "obs": obs_yr,
-            "pred": pred_yr,
-        })
+        records.append(
+            {
+                "model_name": model_name,
+                "station_id": station_id,
+                "year": int(year),
+                "horizon_days": horizon,
+                "NSE": nse_val,
+                "dates": grp["date"].to_numpy(),
+                "obs": obs_yr,
+                "pred": pred_yr,
+            }
+        )
 
     return records
 
@@ -290,7 +323,7 @@ def _build_eval_records(
 def _print_comparison_table(comparison: dict[str, dict[str, Any]]) -> str:
     """Format a markdown comparison table for console output and file save."""
     header = "| Model | h=1 NSE | h=3 NSE | h=7 NSE | h=1 KGE | h=7 RMSE |"
-    sep =    "|-------|---------|---------|---------|---------|----------|"
+    sep = "|-------|---------|---------|---------|---------|----------|"
     rows = [header, sep]
 
     for model_name, data in comparison.items():
@@ -304,8 +337,8 @@ def _print_comparison_table(comparison: dict[str, dict[str, Any]]) -> str:
             return "N/A"
 
         rows.append(
-            f"| {model_name} | {_get(1,'NSE')} | {_get(3,'NSE')} | {_get(7,'NSE')} "
-            f"| {_get(1,'KGE')} | {_get(7,'RMSE')} |"
+            f"| {model_name} | {_get(1, 'NSE')} | {_get(3, 'NSE')} | {_get(7, 'NSE')} "
+            f"| {_get(1, 'KGE')} | {_get(7, 'RMSE')} |"
         )
 
     return "\n".join(rows)
@@ -394,7 +427,9 @@ def run_training(
         train_df, val_df, test_df = _split_df(df)
         logger.info(
             "Split sizes: train=%d val=%d test=%d",
-            len(train_df), len(val_df), len(test_df),
+            len(train_df),
+            len(val_df),
+            len(test_df),
         )
 
         if dry_run:
@@ -433,8 +468,10 @@ def run_training(
         # SHAP plot for h=1
         if lgbm.mean_abs_shap_.get(1) is not None:
             plot_shap_importance(
-                lgbm.feature_names, lgbm.mean_abs_shap_[1],
-                model_name="LightGBM", horizon_days=1,
+                lgbm.feature_names,
+                lgbm.mean_abs_shap_[1],
+                model_name="LightGBM",
+                horizon_days=1,
                 save_path=plots_dir / f"shap_{station_id}_lgbm_h1.png",
             )
 
@@ -456,6 +493,7 @@ def run_training(
         # ── LSTM (optional) ───────────────────────────────────────────────
         if include_lstm and len(train_df) >= 500:
             from src.hydropulse.models.lstm import PerStationLSTM
+
             lstm = PerStationLSTM(max_epochs=15, patience=5)
             lstm.fit(train_df, val_df=val_df if len(val_df) >= 30 else None)
             lstm_preds = lstm.predict(test_df)
@@ -463,8 +501,12 @@ def run_training(
             lstm.save(run_dir / f"lstm_{station_id}.pt")
             logger.info("[lstm_per_station] Fitted and saved for %s.", station_id)
         else:
-            logger.info("Skipping LSTM for %s (include_lstm=%s, train_rows=%d).",
-                        station_id, include_lstm, len(train_df))
+            logger.info(
+                "Skipping LSTM for %s (include_lstm=%s, train_rows=%d).",
+                station_id,
+                include_lstm,
+                len(train_df),
+            )
 
         # ── Evaluate all models ───────────────────────────────────────────
         target_cols = [f"target_discharge_h{h}" for h in range(1, 8)]
@@ -481,12 +523,15 @@ def run_training(
                 continue
 
             per_h = per_horizon_metrics(
-                obs_matrix, preds,
+                obs_matrix,
+                preds,
                 threshold=watch_thresh,
                 horizons=7,
             )
 
-            is_synth = (df["provenance"] == "synthetic").any() if "provenance" in df.columns else False
+            is_synth = (
+                (df["provenance"] == "synthetic").any() if "provenance" in df.columns else False
+            )
             prov_label = "synthetic" if is_synth else "model_reanalysis (GloFAS + Open-Meteo ERA5)"
 
             run_record: dict[str, Any] = {
@@ -612,27 +657,35 @@ def main(argv: list[str] | None = None) -> int:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "--station", nargs="+", default=None, metavar="STATION_ID",
+        "--station",
+        nargs="+",
+        default=None,
+        metavar="STATION_ID",
         help="Station ID(s) to train on. Default: all stations from config/stations.yaml.",
     )
     parser.add_argument(
-        "--no-lstm", action="store_true",
+        "--no-lstm",
+        action="store_true",
         help="Skip LSTM training (fast mode, CPU-friendly).",
     )
     parser.add_argument(
-        "--dry-run", action="store_true",
+        "--dry-run",
+        action="store_true",
         help="Load data and print split stats only; no model training.",
     )
     parser.add_argument(
-        "--processed-dir", default="data/processed",
+        "--processed-dir",
+        default="data/processed",
         help="Directory with per-station Parquet files.",
     )
     parser.add_argument(
-        "--reports-dir", default="reports",
+        "--reports-dir",
+        default="reports",
         help="Root for metrics.json and run artefacts.",
     )
     parser.add_argument(
-        "--synthetic", action="store_true",
+        "--synthetic",
+        action="store_true",
         help="Use synthetic dataset for training/testing (provenance=synthetic).",
     )
     args = parser.parse_args(argv)

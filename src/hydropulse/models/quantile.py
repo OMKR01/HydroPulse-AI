@@ -25,8 +25,13 @@ FORECAST_HORIZONS = 7
 QUANTILES = (0.10, 0.50, 0.90)
 
 FEATURE_EXCLUDE = {
-    "date", "station_id", "provenance", "is_interpolated",
-    "is_outlier_precip", "is_outlier_discharge", "outlier_reason",
+    "date",
+    "station_id",
+    "provenance",
+    "is_interpolated",
+    "is_outlier_precip",
+    "is_outlier_discharge",
+    "outlier_reason",
     "discharge_m3s",
     *[f"target_discharge_h{h}" for h in range(1, FORECAST_HORIZONS + 1)],
 }
@@ -47,8 +52,7 @@ _QUANTILE_LGBM_PARAMS: dict[str, Any] = {
 
 def _select_features(df: pd.DataFrame) -> list[str]:
     return [
-        c for c in df.columns
-        if c not in FEATURE_EXCLUDE and pd.api.types.is_numeric_dtype(df[c])
+        c for c in df.columns if c not in FEATURE_EXCLUDE and pd.api.types.is_numeric_dtype(df[c])
     ]
 
 
@@ -65,7 +69,9 @@ class QuantileLGBMForecaster:
         self._params = lgbm_params or _QUANTILE_LGBM_PARAMS.copy()
         # {quantile_label: {horizon: model}}
         self._models: dict[str, dict[int, Any]] = {
-            "q10": {}, "q50": {}, "q90": {},
+            "q10": {},
+            "q50": {},
+            "q90": {},
         }
         self._feature_cols: list[str] = []
 

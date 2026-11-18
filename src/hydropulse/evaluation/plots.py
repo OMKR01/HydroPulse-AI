@@ -28,14 +28,14 @@ logger = logging.getLogger(__name__)
 
 # Colour-blind–safe palette (Okabe & Ito 2008)
 _PALETTE = {
-    "observed": "#000000",     # Black
-    "predicted": "#0072B2",    # Blue
-    "q10_q90": "#56B4E9",      # Sky blue (shaded band)
-    "q50": "#E69F00",          # Orange
-    "watch": "#F0E442",        # Yellow
-    "warning": "#E69F00",      # Orange
-    "danger": "#CC79A7",       # Pink/Magenta
-    "baseline": "#999999",     # Grey
+    "observed": "#000000",  # Black
+    "predicted": "#0072B2",  # Blue
+    "q10_q90": "#56B4E9",  # Sky blue (shaded band)
+    "q50": "#E69F00",  # Orange
+    "watch": "#F0E442",  # Yellow
+    "warning": "#E69F00",  # Orange
+    "danger": "#CC79A7",  # Pink/Magenta
+    "baseline": "#999999",  # Grey
 }
 
 
@@ -83,25 +83,45 @@ def plot_hydrograph(
     # Uncertainty band
     if q_lo is not None and q_hi is not None:
         ax.fill_between(
-            dt_index, q_lo, q_hi,
-            alpha=0.25, color=_PALETTE["q10_q90"], label="P10–P90 band",
+            dt_index,
+            q_lo,
+            q_hi,
+            alpha=0.25,
+            color=_PALETTE["q10_q90"],
+            label="P10–P90 band",
         )
 
     # Observed
-    ax.plot(dt_index, obs, color=_PALETTE["observed"], linewidth=1.2,
-            label="Observed", zorder=3)
+    ax.plot(dt_index, obs, color=_PALETTE["observed"], linewidth=1.2, label="Observed", zorder=3)
 
     # Predicted
-    ax.plot(dt_index, pred, color=_PALETTE["predicted"], linewidth=1.2,
-            linestyle="--", label=f"Predicted (t+{horizon_days}d)", zorder=4)
+    ax.plot(
+        dt_index,
+        pred,
+        color=_PALETTE["predicted"],
+        linewidth=1.2,
+        linestyle="--",
+        label=f"Predicted (t+{horizon_days}d)",
+        zorder=4,
+    )
 
     # Alert thresholds
     if threshold_watch is not None:
-        ax.axhline(threshold_watch, color=_PALETTE["watch"], linestyle=":",
-                   linewidth=1.0, label=f"Watch ({threshold_watch:.0f} m³/s)")
+        ax.axhline(
+            threshold_watch,
+            color=_PALETTE["watch"],
+            linestyle=":",
+            linewidth=1.0,
+            label=f"Watch ({threshold_watch:.0f} m³/s)",
+        )
     if threshold_danger is not None:
-        ax.axhline(threshold_danger, color=_PALETTE["danger"], linestyle=":",
-                   linewidth=1.0, label=f"Danger ({threshold_danger:.0f} m³/s)")
+        ax.axhline(
+            threshold_danger,
+            color=_PALETTE["danger"],
+            linestyle=":",
+            linewidth=1.0,
+            label=f"Danger ({threshold_danger:.0f} m³/s)",
+        )
 
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m"))
     ax.xaxis.set_major_locator(mdates.MonthLocator(interval=3))
@@ -132,8 +152,7 @@ def plot_worst_best_years(
         logger.warning("No evaluation records provided for worst/best year plots.")
         return
 
-    valid = [r for r in eval_records if isinstance(r.get("NSE"), float)
-             and not np.isnan(r["NSE"])]
+    valid = [r for r in eval_records if isinstance(r.get("NSE"), float) and not np.isnan(r["NSE"])]
     if not valid:
         logger.warning("All NSE values are NaN — cannot determine worst/best year.")
         return
@@ -196,18 +215,20 @@ def plot_model_comparison(
     colors = ["#0072B2", "#E69F00", "#CC79A7", "#009E73", "#F0E442", "#56B4E9"]
     for i, model in enumerate(models):
         rows = _extract_rows(comparison[model])
-        vals = [
-            row.get(metric, float("nan"))
-            for row in rows
-            if isinstance(row, dict)
-        ]
+        vals = [row.get(metric, float("nan")) for row in rows if isinstance(row, dict)]
         vals_clean = [v if isinstance(v, float) and not np.isnan(v) else 0.0 for v in vals]
         # Pad with 0.0 if fewer horizons than max
         while len(vals_clean) < len(horizons):
             vals_clean.append(0.0)
         offset = (i - len(models) / 2 + 0.5) * width
-        ax.bar(x + offset, vals_clean[:len(horizons)], width=width,
-               label=model, color=colors[i % len(colors)], alpha=0.85)
+        ax.bar(
+            x + offset,
+            vals_clean[: len(horizons)],
+            width=width,
+            label=model,
+            color=colors[i % len(colors)],
+            alpha=0.85,
+        )
 
     ax.set_xlabel("Forecast Horizon (days ahead)")
     ax.set_ylabel(metric)

@@ -184,11 +184,13 @@ class TestStationDroughtEvaluator:
         # Inject artificial low flow
         discharge[:20] = 3.0
 
-        df = pd.DataFrame({
-            "date": dates.strftime("%Y-%m-%d"),
-            "discharge_m3s": discharge,
-            "spi_30d": rng.normal(0, 1, n),
-        })
+        df = pd.DataFrame(
+            {
+                "date": dates.strftime("%Y-%m-%d"),
+                "discharge_m3s": discharge,
+                "spi_30d": rng.normal(0, 1, n),
+            }
+        )
 
         evaluator = StationDroughtEvaluator(station_id="damodar_ramgarh", low_flow_quantile=0.10)
         evaluator.fit(df)

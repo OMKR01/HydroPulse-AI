@@ -195,7 +195,10 @@ def test_get_water_quality_industrial_hotspot(client):
     data = resp.get_json()
     validated = WaterQualityResponse(**data)
     assert validated.hotspot_severity in ("None", "Moderate", "Critical")
-    assert "indicative" in validated.hotspot_summary.lower() or "verified" in validated.hotspot_summary.lower()
+    assert (
+        "indicative" in validated.hotspot_summary.lower()
+        or "verified" in validated.hotspot_summary.lower()
+    )
 
 
 def test_get_water_quality_not_found(client):
@@ -215,7 +218,12 @@ def test_get_drought_status_success(client):
     assert 0.0 <= validated.composite_score <= 1.0
     assert validated.low_flow_threshold_m3s >= 0.0
     assert isinstance(validated.is_low_flow, bool)
-    assert validated.outlook_trend in ("Improving", "Persistent Low Flow", "Deteriorating", "Normal")
+    assert validated.outlook_trend in (
+        "Improving",
+        "Persistent Low Flow",
+        "Deteriorating",
+        "Normal",
+    )
     assert -100.0 <= validated.projected_deficit_pct <= 100.0
     assert 0 <= validated.forecast_low_flow_days_7d <= 7
 

@@ -26,9 +26,7 @@ class VercelPathCorrectionMiddleware:
     def __init__(self, wsgi_app: Callable[[dict[str, Any], Callable[..., Any]], Any]) -> None:
         self.wsgi_app = wsgi_app
 
-    def __call__(
-        self, environ: dict[str, Any], start_response: Callable[..., Any]
-    ) -> Any:
+    def __call__(self, environ: dict[str, Any], start_response: Callable[..., Any]) -> Any:
         forwarded_path: str | None = (
             environ.get("HTTP_X_VERCEL_FORWARDED_PATH")
             or environ.get("HTTP_X_FORWARDED_PATH")

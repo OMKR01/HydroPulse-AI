@@ -46,7 +46,9 @@ def run_smoke_benchmark(n_iterations: int = 50) -> dict[str, float]:
 
     latencies_ms: list[float] = []
 
-    print(f"Executing {n_iterations} iterations across {len(endpoints)} endpoints ({n_iterations * len(endpoints)} requests total)...")
+    print(
+        f"Executing {n_iterations} iterations across {len(endpoints)} endpoints ({n_iterations * len(endpoints)} requests total)..."
+    )
 
     for _ in range(n_iterations):
         for ep in endpoints:
@@ -84,7 +86,9 @@ def run_smoke_benchmark(n_iterations: int = 50) -> dict[str, float]:
     print(f" Maximum Latency:          {metrics['max_ms']:>6.2f} ms")
     print("===========================================================\n")
 
-    assert metrics["p95_ms"] < 300.0, f"p95 latency {metrics['p95_ms']} ms exceeds 300 ms threshold!"
+    assert metrics["p95_ms"] < 300.0, (
+        f"p95 latency {metrics['p95_ms']} ms exceeds 300 ms threshold!"
+    )
     print("SUCCESS: Phase 5 API meets latency and concurrency criteria (p95 < 300 ms).")
     return metrics
 
