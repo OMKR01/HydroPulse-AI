@@ -1,5 +1,6 @@
 # HydroPulse AI - Development, Testing & Modeling Dependencies
 -r requirements.txt
+-r requirements-ml.txt
 
 # Testing & Coverage
 pytest>=7.4.0
@@ -13,11 +14,5 @@ types-requests
 types-PyYAML
 
 # Notebooks & Visualisation
-matplotlib>=3.8.0
 seaborn>=0.13.0
 nbformat>=5.9.0
-
-# Modeling (Optional in Phase 0, pinned for future phases)
-lightgbm>=4.1.0
-torch>=2.1.0; sys_platform != "win32" or python_version < "3.13"
-shap>=0.43.0; sys_platform != "win32" or python_version < "3.13"

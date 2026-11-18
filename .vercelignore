@@ -1,0 +1,44 @@
+# Version control & CI
+.git
+.github
+.agents
+.vscode
+
+# Caches & temporary files
+.pytest_cache
+.ruff_cache
+__pycache__
+*.py[cod]
+*$py.class
+
+# Testing & Coverage
+tests
+.coverage
+coverage.xml
+htmlcov
+
+# Development & Notebooks
+notebooks
+scripts/build_eda_notebook.py
+scripts/demo_client.py
+
+# Offline evaluation artifacts & databases
+reports/runs
+reports/plots
+data/interim/hydropulse.db
+
+# Virtual environments
+venv
+.venv
+ENV
+env
+
+# Local build & container files
+Dockerfile
+docker-compose.yml
+Makefile
+make.bat
+
+# OS files
+.DS_Store
+Thumbs.db

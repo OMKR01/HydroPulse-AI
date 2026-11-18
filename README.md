@@ -310,6 +310,30 @@ In accordance with AGENTS.md integrity rules, every single evaluated event is do
 - **Advance Warning Window**: The system consistently triggered alerts **2 to 3 days in advance** of observed flood crests.
 - Detailed report: [`reports/event_validation.md`](reports/event_validation.md) with event hydrograph plots in `reports/plots/`.
 
+---
 
+## 13. Deployment & Production Running
 
+HydroPulse AI is engineered for both containerized environments (Docker) and serverless platforms (Vercel):
+
+### Serverless Deployment on Vercel
+HydroPulse AI is configured for one-click, zero-config serverless deployment to [Vercel](https://vercel.com/):
+- **Vercel Entrypoint**: [`api/index.py`](api/index.py) with automated WSGI path-normalization middleware.
+- **Routing & Edge Caching**: [`vercel.json`](vercel.json) rewrites all incoming traffic to the serverless function while caching static assets (`/static/*`) globally on Vercel CDN.
+- **Deployment Guide**: Comprehensive step-by-step instructions in [`docs/DEPLOYMENT_VERCEL.md`](docs/DEPLOYMENT_VERCEL.md).
+
+```bash
+# Deploy to Vercel via CLI
+npm install -g vercel
+vercel login
+vercel --prod
+```
+
+### Docker Production Deployment
+```bash
+# Build and run the hardened non-root container
+docker-compose up -d --build
+```
+Healthcheck: `http://localhost:5000/api/v1/health`  
+Dashboard: `http://localhost:5000/dashboard`
 
