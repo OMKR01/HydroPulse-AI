@@ -137,6 +137,11 @@ class TestVercelIntegration:
                 return None
 
         # Temporarily prepend import hook
+        saved_torch = {k: v for k, v in sys.modules.items() if k.startswith("torch")}
+        saved_lstm = sys.modules.pop("src.hydropulse.models.lstm", None)
+        for k in saved_torch:
+            del sys.modules[k]
+
         sys.meta_path.insert(0, BlockTorch())
         try:
             from src.hydropulse.models.lstm import PerStationLSTM
@@ -144,3 +149,6 @@ class TestVercelIntegration:
             assert isinstance(PerStationLSTM.name, str)
         finally:
             sys.meta_path.pop(0)
+            sys.modules.update(saved_torch)
+            if saved_lstm is not None:
+                sys.modules["src.hydropulse.models.lstm"] = saved_lstm

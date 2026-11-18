@@ -53,6 +53,7 @@ ignore = [
 minversion = "7.0"
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+pythonpath = ["."]
 addopts = "-v --cov=src/hydropulse --cov-report=term-missing --cov-report=xml"
 filterwarnings = [
     "ignore::DeprecationWarning",

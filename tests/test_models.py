@@ -29,6 +29,14 @@ except (ImportError, OSError):
     torch = None  # type: ignore
     TORCH_AVAILABLE = False
 
+try:
+    import shap
+
+    SHAP_AVAILABLE = True
+except (ImportError, OSError):
+    shap = None  # type: ignore
+    SHAP_AVAILABLE = False
+
 # ──────────────────────────── fixtures ────────────────────────────────────
 
 
@@ -308,6 +316,7 @@ class TestLGBMForecaster:
         model = LGBMForecaster(hybrid=True)
         assert model.name == "lgbm_hybrid"
 
+    @pytest.mark.skipif(not SHAP_AVAILABLE, reason="shap not installed or failed to import")
     def test_shap_runs_without_error(self, train_val_test):
         from src.hydropulse.models.lgbm import LGBMForecaster
 
