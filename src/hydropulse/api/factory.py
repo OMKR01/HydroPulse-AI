@@ -1,5 +1,6 @@
 import logging
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 from flask import Flask, g, jsonify, request
@@ -78,10 +79,14 @@ def register_error_handlers(app: Flask) -> None:
 
 def create_app(config_override: dict[str, Any] | None = None) -> Flask:
     """Create and configure an instance of the Flask application."""
+    package_dir = Path(__file__).resolve().parent.parent
+    static_dir = package_dir / "web" / "static"
+    template_dir = package_dir / "web" / "templates"
+
     app = Flask(
         __name__,
-        static_folder="../web/static",
-        template_folder="../web/templates",
+        static_folder=str(static_dir),
+        template_folder=str(template_dir),
     )
 
     # Core configuration

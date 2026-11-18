@@ -36,10 +36,14 @@ try:
     TORCH_AVAILABLE = True
 except (ImportError, OSError):
     torch = None  # type: ignore
-    nn = None  # type: ignore
     DataLoader = None  # type: ignore
     Dataset = object  # type: ignore
     TORCH_AVAILABLE = False
+
+    class _MockNN:  # type: ignore
+        Module = object
+
+    nn = _MockNN()  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -72,12 +76,15 @@ FEATURE_EXCLUDE = {
 
 
 def _set_seed(seed: int = RANDOM_SEED) -> None:
-    torch.manual_seed(seed)
+    if torch is not None:
+        torch.manual_seed(seed)
     np.random.seed(seed)
 
 
-def _get_device() -> torch.device:
-    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+def _get_device() -> Any:
+    if torch is not None and hasattr(torch, "device"):
+        return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    return "cpu"
 
 
 def _select_features(df: pd.DataFrame) -> list[str]:
@@ -366,6 +373,8 @@ class PerStationLSTM:
         val_df: pd.DataFrame | None = None,
     ) -> PerStationLSTM:
         """Fit LSTM on training DataFrame."""
+        if not TORCH_AVAILABLE:
+            raise RuntimeError("PyTorch must be installed to fit PerStationLSTM.")
         _set_seed()
         self._feature_cols = _select_features(train_df)
         if not self._feature_cols:
@@ -565,6 +574,8 @@ class MultiStationLSTM:
             train_dfs: training data per station.
             val_dfs:   validation data per station (optional).
         """
+        if not TORCH_AVAILABLE:
+            raise RuntimeError("PyTorch must be installed to fit MultiStationLSTM.")
         _set_seed()
         if not train_dfs:
             logger.error("[%s] No training data provided.", self.name)

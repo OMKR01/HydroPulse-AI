@@ -33,7 +33,7 @@ from src.hydropulse.models.wqi import (
 
 try:
     from src.hydropulse.models.lstm import MultiStationLSTM, PerStationLSTM
-except (ImportError, OSError):
+except Exception:
     MultiStationLSTM = None  # type: ignore
     PerStationLSTM = None  # type: ignore
 

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import sys
+
 import pytest
 from flask import Flask
 
@@ -29,6 +31,13 @@ class TestVercelIntegration:
         data = response.get_json()
         assert data["status"] == "healthy"
         assert data["service"] == "hydropulse-ai"
+
+    def test_root_fallback_when_path_is_api_index(self, client):
+        """When rewritten to /api/index with no forwarded path, it should route to /."""
+        response = client.get("/api/index")
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data["service"] == "HydroPulse AI"
 
     def test_vercel_forwarded_path_header(self, client):
         """Simulate Vercel rewriting /(.*) to /api/index with X-Vercel-Forwarded-Path."""
@@ -93,3 +102,21 @@ class TestVercelIntegration:
         data = response.get_json()
         assert "error" in data
         assert data["error"]["status_code"] == 404
+
+    def test_models_import_gracefully_when_torch_is_missing(self, monkeypatch):
+        """Ensure models package imports cleanly without torch installed (Vercel runtime)."""
+
+        class BlockTorch:
+            def find_spec(self, fullname, path, target=None):
+                if fullname.startswith("torch"):
+                    raise ModuleNotFoundError(f"No module named {fullname}")
+                return None
+
+        # Temporarily prepend import hook
+        sys.meta_path.insert(0, BlockTorch())
+        try:
+            from src.hydropulse.models.lstm import PerStationLSTM
+
+            assert isinstance(PerStationLSTM.name, str)
+        finally:
+            sys.meta_path.pop(0)

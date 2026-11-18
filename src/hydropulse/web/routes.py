@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 from flask import Blueprint, render_template
 
@@ -11,12 +12,13 @@ from src.hydropulse import __version__
 
 # Indian Standard Time (UTC+05:30) for Jharkhand river telemetry
 IST = timezone(timedelta(hours=5, minutes=30))
+_WEB_DIR = Path(__file__).resolve().parent
 
 web_bp = Blueprint(
     "web",
     __name__,
-    template_folder="templates",
-    static_folder="static",
+    template_folder=str(_WEB_DIR / "templates"),
+    static_folder=str(_WEB_DIR / "static"),
     static_url_path="/static",
 )
 
