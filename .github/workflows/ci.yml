@@ -59,7 +59,15 @@ jobs:
         env:
           PYTHONPATH: .
         run: |
-          python -m pytest --cov=src/hydropulse --cov-report=term-missing --cov-report=xml --cov-fail-under=80
+          set +e
+          python -m pytest --cov=src/hydropulse --cov-report=term-missing --cov-report=xml --cov-fail-under=80 -v --tb=short > pytest_output.log 2>&1
+          PYTEST_EXIT=$?
+          cat pytest_output.log
+          echo "## Pytest Output Summary" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          tail -n 120 pytest_output.log >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          exit $PYTEST_EXIT
 
       - name: Upload Coverage Artifact
         uses: actions/upload-artifact@v4
