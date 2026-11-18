@@ -20,13 +20,7 @@
   "functions": {
     "api/index.py": {
       "maxDuration": 30,
-      "includeFiles": [
-        "config/**",
-        "data/**",
-        "reports/metrics.json",
-        "src/hydropulse/web/templates/**",
-        "src/hydropulse/web/static/**"
-      ]
+      "includeFiles": "{config/**,data/**,reports/**,src/hydropulse/web/**}"
     }
   }
 }
