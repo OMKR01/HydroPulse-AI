@@ -10,6 +10,7 @@ import traceback
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
+from urllib.parse import parse_qs, unquote, urlencode
 
 # Ensure repository root is on sys.path
 ROOT_DIR = Path(__file__).resolve().parent
@@ -24,22 +25,30 @@ logger = logging.getLogger("hydropulse.vercel")
 
 
 class VercelPathCorrectionMiddleware:
-    """WSGI middleware to normalize PATH_INFO from Vercel rewrite headers."""
+    """WSGI middleware to normalize PATH_INFO from Vercel rewrite parameters and headers."""
 
     def __init__(self, wsgi_app: Callable[[dict[str, Any], Callable[..., Any]], Any]) -> None:
         self.wsgi_app = wsgi_app
 
     def __call__(self, environ: dict[str, Any], start_response: Callable[..., Any]) -> Any:
         try:
-            forwarded_path: str | None = environ.get("HTTP_X_VERCEL_FORWARDED_PATH") or environ.get(
-                "HTTP_X_FORWARDED_PATH"
-            )
-            if forwarded_path:
-                if "?" in forwarded_path:
-                    forwarded_path, _ = forwarded_path.split("?", 1)
-                environ["PATH_INFO"] = forwarded_path
-            elif environ.get("PATH_INFO") in ("/api/index", "/api/index.py"):
-                environ["PATH_INFO"] = "/"
+            query_string = environ.get("QUERY_STRING", "")
+            if "__path" in query_string:
+                params = parse_qs(query_string, keep_blank_values=True)
+                path_list = params.pop("__path", [""])
+                raw_path = path_list[0] if path_list else ""
+                environ["QUERY_STRING"] = urlencode(params, doseq=True)
+                environ["PATH_INFO"] = "/" + unquote(raw_path).lstrip("/")
+            else:
+                forwarded_path: str | None = environ.get(
+                    "HTTP_X_VERCEL_FORWARDED_PATH"
+                ) or environ.get("HTTP_X_FORWARDED_PATH")
+                if forwarded_path:
+                    if "?" in forwarded_path:
+                        forwarded_path, _ = forwarded_path.split("?", 1)
+                    environ["PATH_INFO"] = "/" + unquote(forwarded_path).lstrip("/")
+                elif environ.get("PATH_INFO") in ("/api/index", "/api/index.py"):
+                    environ["PATH_INFO"] = "/"
 
             return self.wsgi_app(environ, start_response)
         except Exception as exc:

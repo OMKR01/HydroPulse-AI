@@ -1,0 +1,1217 @@
+/* ==========================================================================
+   INVERSA DESIGN SYSTEM — HYDROLOGIC FIELD TERMINAL
+   Topographic field terminal at midnight.
+   Obsidian Loam (#13140e) canvas, Bone Vellum (#f4f3e8) editorial type,
+   and Lime Surveyor (#ebfc72) tactical highlights.
+   Utilitarian, shadowless, 3.6px radii, hairline Iron Filings (#404040) borders.
+   ========================================================================== */
+
+:root {
+  /* ── 1. INVERSA Colors ─────────────────────────────────────────────────── */
+  --color-obsidian-loam: #13140e;  /* Near-black canvas with faint warm olive cast */
+  --color-bone-vellum: #f4f3e8;    /* Warm paper off-white for text and headings */
+  --color-iron-filings: #404040;   /* Hairline borders, dividers, subtle rules */
+  --color-drift-ash: #84837b;      /* Muted secondary labels, telemetry timestamps */
+  --color-lime-surveyor: #ebfc72;  /* Electric neon-lime marker accent */
+  --color-marsh-olive: #bacd31;    /* Deep transition olive for secondary gradients */
+
+  /* Semantic Mappings */
+  --bg-canvas: var(--color-obsidian-loam);
+  --bg-surface: var(--color-obsidian-loam);
+  --bg-surface-elevated: #181912;
+  --bg-surface-hover: #1f2017;
+  --border-subtle: var(--color-iron-filings);
+  --border-prominent: var(--color-drift-ash);
+
+  --text-main: var(--color-bone-vellum);
+  --text-secondary: var(--color-drift-ash);
+  --text-muted: #5e5d56;
+  --text-accent: var(--color-lime-surveyor);
+
+  /* Tactical Alert Palette (Double-encoded: Color + Shape + Text) */
+  --risk-normal: #ebfc72;          /* Lime Surveyor / Circle */
+  --risk-watch: #f59e0b;           /* Amber Orange / Square */
+  --risk-warning: #f43f5e;         /* Rose Crimson / Triangle */
+  --risk-danger: #ef4444;          /* Signal Red / Octagon */
+
+  --risk-normal-bg: rgba(235, 252, 114, 0.12);
+  --risk-watch-bg: rgba(245, 158, 11, 0.15);
+  --risk-warning-bg: rgba(244, 63, 94, 0.15);
+  --risk-danger-bg: rgba(239, 68, 68, 0.18);
+
+  /* ── 2. Typography ──────────────────────────────────────────────────────── */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --tracking-editorial: -0.0300em;
+  --tracking-mono: 0.02em;
+
+  /* ── 3. Spacing & Shapes ────────────────────────────────────────────────── */
+  --radius-tags: 3.6px;
+  --radius-cards: 0px;
+  --radius-inputs: 3.6px;
+  --radius-buttons: 3.6px;
+
+  /* Header & Navigation Metrics */
+  --header-height: 104px;
+}
+
+/* ── Reset & Base Layout ──────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font-sans);
+  background-color: var(--bg-canvas);
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Accessibility: Skip Navigation Link */
+.skip-nav-link {
+  position: absolute;
+  top: -999px;
+  left: 12px;
+  background: var(--color-lime-surveyor);
+  color: var(--color-obsidian-loam);
+  padding: 8px 16px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 13px;
+  border-radius: var(--radius-buttons);
+  z-index: 9999;
+  text-decoration: none;
+}
+.skip-nav-link:focus {
+  top: 12px;
+}
+
+/* Accessible Focus Ring */
+:focus-visible {
+  outline: 2px solid var(--color-lime-surveyor);
+  outline-offset: 2px;
+}
+
+/* ── Top Header / Command Bar ────────────────────────────────────────────── */
+.app-header {
+  background: var(--bg-canvas);
+  border-bottom: 1px solid var(--border-subtle);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  gap: 16px;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-emblem {
+  color: var(--color-lime-surveyor);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: var(--tracking-editorial);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-accent {
+  color: var(--color-lime-surveyor);
+}
+
+.badge-beta {
+  font-size: 10px;
+  background: transparent;
+  color: var(--color-lime-surveyor);
+  border: 1px solid var(--color-iron-filings);
+  padding: 2px 6px;
+  border-radius: var(--radius-tags);
+  font-weight: 600;
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.brand-subtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Provenance Indicator Pill */
+.provenance-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  padding: 4px 10px;
+  border-radius: var(--radius-tags);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pulse-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--color-lime-surveyor);
+  border-radius: 50%;
+  animation: pulse-glow 2s infinite ease-in-out;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.8); }
+}
+
+/* Utilitarian Control Buttons */
+.control-btn {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  padding: 6px 14px;
+  border-radius: var(--radius-buttons);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.control-btn:hover {
+  background: var(--bg-surface-elevated);
+  border-color: var(--color-lime-surveyor);
+  color: var(--color-lime-surveyor);
+}
+
+.lang-toggle .active {
+  color: var(--color-lime-surveyor);
+  font-weight: 700;
+  border-bottom: 2px solid var(--color-lime-surveyor);
+  padding-bottom: 1px;
+}
+.lang-divider {
+  color: var(--border-subtle);
+  margin: 0 2px;
+}
+
+.refresh-icon {
+  transition: transform 0.4s ease;
+  stroke: currentColor;
+}
+.refresh-btn.spinning .refresh-icon {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.header-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-buttons);
+  transition: all 0.15s ease;
+}
+.nav-link:hover {
+  color: var(--color-lime-surveyor);
+  border-color: var(--border-subtle);
+}
+
+/* ── Statutory Advisory Disclaimer Banner ────────────────────────────────── */
+.disclaimer-banner {
+  background: #181912;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 8px 24px;
+}
+
+.disclaimer-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.disclaimer-icon {
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--color-lime-surveyor);
+}
+
+.disclaimer-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  font-family: var(--font-sans);
+}
+.disclaimer-text strong {
+  color: var(--color-lime-surveyor);
+  font-family: var(--font-mono);
+  letter-spacing: 0.03em;
+  margin-right: 6px;
+}
+
+/* ── Active Basin Alerts Ticker Strip ────────────────────────────────────── */
+.alerts-ticker-strip {
+  background: var(--bg-canvas);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  padding: 8px 24px;
+  gap: 14px;
+}
+
+.ticker-label {
+  display: flex;
+  align-items: center;
+}
+
+.ticker-badge {
+  background: var(--color-lime-surveyor);
+  color: var(--color-obsidian-loam);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-tags);
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.ticker-content {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+/* ── Master Grid Architecture ────────────────────────────────────────────── */
+.dashboard-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - var(--header-height) - 40px);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 480px;
+  flex: 1;
+  min-height: 720px;
+}
+
+/* ── Geospatial River Basin Map (Left Column) ────────────────────────────── */
+.map-section {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-canvas);
+  border-right: 1px solid var(--border-subtle);
+}
+
+.map-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: var(--bg-canvas);
+  border-bottom: 1px solid var(--border-subtle);
+  z-index: 400;
+  gap: 12px;
+}
+
+.basin-filter-group {
+  display: flex;
+  gap: 8px;
+}
+
+.basin-pill {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: var(--radius-buttons);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.basin-pill:hover {
+  color: var(--text-main);
+  border-color: var(--color-drift-ash);
+}
+
+.basin-pill.active {
+  background: var(--color-lime-surveyor);
+  color: var(--color-obsidian-loam);
+  border-color: var(--color-lime-surveyor);
+  font-weight: 700;
+}
+
+.station-counters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.counter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-tags);
+  font-family: var(--font-mono);
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+}
+
+.counter-normal { color: var(--risk-normal); }
+.counter-watch  { color: var(--risk-watch); }
+.counter-warning{ color: var(--risk-warning); }
+.counter-danger { color: var(--risk-danger); }
+
+/* Leaflet Viewport */
+.map-viewport {
+  flex: 1;
+  min-height: 560px;
+  background: var(--color-obsidian-loam);
+}
+
+/* Floating Accessible Legend */
+.map-legend {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(19, 20, 14, 0.95);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-cards);
+  padding: 12px 16px;
+  z-index: 500;
+  max-width: 250px;
+}
+
+.legend-title {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-lime-surveyor);
+  margin-bottom: 8px;
+}
+
+.legend-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-main);
+}
+
+.legend-icon {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.icon-normal { color: var(--risk-normal); }
+.icon-watch  { color: var(--risk-watch); }
+.icon-warning{ color: var(--risk-warning); }
+.icon-danger { color: var(--risk-danger); }
+
+.legend-note {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+/* Custom Marker Styling on Leaflet */
+.custom-station-icon {
+  background: transparent;
+  border: none;
+}
+.marker-svg {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.marker-svg:hover, .marker-svg:focus {
+  transform: scale(1.35);
+}
+
+.pulsing-marker {
+  animation: marker-pulse 1.8s infinite ease-out;
+}
+@keyframes marker-pulse {
+  0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(244, 63, 94, 0.8)); }
+  50% { transform: scale(1.25); filter: drop-shadow(0 0 8px rgba(244, 63, 94, 1)); }
+  100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(244, 63, 94, 0.8)); }
+}
+
+/* ── Station Details Command Panel (Right Column) ────────────────────────── */
+.station-panel {
+  background: var(--bg-canvas);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  max-height: calc(100vh - var(--header-height) - 40px);
+  padding: 20px;
+  gap: 16px;
+}
+
+/* Station Header Card */
+.station-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  gap: 14px;
+}
+
+.station-river-tag {
+  font-size: 11px;
+  color: var(--color-lime-surveyor);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.station-name-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: var(--tracking-editorial);
+  margin: 4px 0 6px;
+  line-height: 1.1;
+}
+
+.station-geo-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+.status-unverified-tag {
+  color: var(--risk-watch);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.station-alert-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-tags);
+  font-weight: 700;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--risk-normal-bg);
+  color: var(--risk-normal);
+  border: 1px solid var(--risk-normal);
+}
+
+/* Early Warning Narrative & Explainability */
+.alert-narrative-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-cards);
+  padding: 14px;
+}
+
+.narrative-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.narrative-heading {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-lime-surveyor);
+}
+
+.narrative-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-main);
+}
+
+.explainability-block {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.explain-title {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.explain-factors-list {
+  padding-left: 18px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+/* Panel Tabs */
+.panel-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-subtle);
+  gap: 6px;
+}
+
+.panel-tab {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  padding: 8px 14px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.panel-tab:hover {
+  color: var(--text-main);
+}
+
+.panel-tab.active {
+  color: var(--color-lime-surveyor);
+  border-bottom-color: var(--color-lime-surveyor);
+}
+
+/* Hydrograph Container */
+.hydrograph-container {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-cards);
+  padding: 14px;
+  margin-top: 10px;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.chart-title {
+  font-size: 13px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--text-main);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.chart-units {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+.chart-canvas-wrapper {
+  position: relative;
+  height: 220px;
+  width: 100%;
+}
+
+.hydrograph-legend-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+.hydro-leg-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.leg-color-box {
+  width: 10px;
+  height: 10px;
+  border-radius: 1px;
+}
+.leg-obs  { background: var(--color-drift-ash); }
+.leg-p50  { background: var(--color-lime-surveyor); }
+.leg-band { background: rgba(235, 252, 114, 0.35); }
+.leg-warn { background: var(--color-marsh-olive); }
+.leg-dang { background: var(--risk-danger); }
+
+/* Multi-Horizon Telemetry Metrics Grid */
+.forecast-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.metric-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-cards);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.metric-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text-main);
+  margin: 4px 0 2px;
+}
+
+.metric-sub {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+/* ── Water Quality (WQI) Tab ─────────────────────────────────────────────── */
+.wqi-summary-block {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.wqi-score-card, .cpcb-class-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-cards);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.wqi-sublabel, .cpcb-sublabel {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.wqi-value-display {
+  display: flex;
+  align-items: baseline;
+  margin: 6px 0;
+}
+
+.wqi-score {
+  font-size: 2.2rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--color-lime-surveyor);
+}
+
+.wqi-scale {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+.wqi-status-badge {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-tags);
+  background: var(--risk-normal-bg);
+  color: var(--color-lime-surveyor);
+  border: 1px solid var(--color-lime-surveyor);
+  letter-spacing: 0.03em;
+}
+
+.cpcb-class-display {
+  margin: 6px 0;
+}
+
+.cpcb-class-letter {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-main);
+  font-family: var(--font-mono);
+}
+
+.cpcb-desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  font-family: var(--font-sans);
+}
+
+/* Hotspot Alert Banner */
+.hotspot-banner {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid var(--risk-danger);
+  border-radius: var(--radius-cards);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.hotspot-icon {
+  font-size: 1.4rem;
+  color: var(--risk-danger);
+}
+
+.hotspot-text strong {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--risk-danger);
+  display: block;
+  letter-spacing: 0.03em;
+}
+
+.hotspot-text p {
+  font-size: 12px;
+  color: var(--text-main);
+  margin-top: 2px;
+}
+
+/* Parameter Grid */
+.wq-params-section {
+  margin-top: 14px;
+}
+
+.params-title {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--color-lime-surveyor);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.params-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.param-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-cards);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.param-name {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.param-val {
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text-main);
+  margin: 3px 0 1px;
+}
+
+.param-std {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+/* ── Drought & Low-Flow Tab ──────────────────────────────────────────────── */
+.drought-overview-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-cards);
+  padding: 14px;
+  margin-top: 10px;
+}
+
+.drought-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.drought-status-title {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.drought-severity-pill {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-tags);
+  background: var(--risk-normal-bg);
+  color: var(--color-lime-surveyor);
+  border: 1px solid var(--color-lime-surveyor);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.drought-summary-text {
+  font-size: 12px;
+  color: var(--text-main);
+  line-height: 1.45;
+}
+
+/* SPI Telemetry Section */
+.spi-section {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-cards);
+  padding: 14px;
+  margin-top: 10px;
+}
+
+.spi-title {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--color-lime-surveyor);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+
+.spi-bars-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.spi-row {
+  display: grid;
+  grid-template-columns: 85px 1fr 50px;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.spi-scale-label {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.spi-bar-track {
+  height: 6px;
+  background: var(--border-subtle);
+  border-radius: var(--radius-tags);
+  overflow: hidden;
+  position: relative;
+}
+
+.spi-bar-fill {
+  height: 100%;
+  background: var(--color-lime-surveyor);
+  border-radius: var(--radius-tags);
+  transition: width 0.3s ease;
+}
+
+.spi-val {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-align: right;
+  color: var(--text-main);
+}
+
+.spi-footer-note {
+  display: block;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  margin-top: 10px;
+}
+
+/* Q90 Stress Sensor Card */
+.q90-stress-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-cards);
+  padding: 14px;
+  margin-top: 10px;
+}
+
+.q90-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.q90-label {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.q90-badge {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-tags);
+  background: var(--risk-normal-bg);
+  color: var(--color-lime-surveyor);
+  border: 1px solid var(--color-lime-surveyor);
+}
+
+.q90-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.q90-detail-item {
+  display: flex;
+  justify-content: space-between;
+}
+.q90-detail-item .item-val {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+/* 30-Day Outlook Trajectory */
+.drought-outlook-box {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-cards);
+  padding: 14px;
+  margin-top: 10px;
+}
+
+.outlook-title {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--color-lime-surveyor);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.outlook-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.outlook-arrow {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-lime-surveyor);
+}
+
+.outlook-badge {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-tags);
+  background: var(--risk-normal-bg);
+  color: var(--color-lime-surveyor);
+  border: 1px solid var(--color-lime-surveyor);
+  letter-spacing: 0.04em;
+}
+
+.outlook-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+/* ── Minimalist Terminal Footer ──────────────────────────────────────────── */
+.app-footer {
+  background: var(--bg-canvas);
+  border-top: 1px solid var(--border-subtle);
+  padding: 14px 24px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.footer-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.footer-meta strong {
+  color: var(--text-main);
+}
+
+.footer-subtext {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--color-drift-ash);
+  margin-top: 2px;
+}
+
+.clock-display {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-lime-surveyor);
+  border: 1px solid var(--border-subtle);
+  padding: 3px 8px;
+  border-radius: var(--radius-tags);
+}
+
+/* ── Responsive Viewport Adjustments ─────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  .map-viewport {
+    min-height: 440px;
+  }
+  .station-panel {
+    max-height: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .header-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .forecast-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  .wqi-summary-block {
+    grid-template-columns: 1fr;
+  }
+  .params-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

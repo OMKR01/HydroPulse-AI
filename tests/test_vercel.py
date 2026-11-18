@@ -39,6 +39,30 @@ class TestVercelIntegration:
         data = response.get_json()
         assert data["service"] == "HydroPulse AI"
 
+    def test_vercel_rewrite_path_parameter_dashboard(self, client):
+        """Verify Vercel rewrite destination /api/index?__path=dashboard renders dashboard."""
+        response = client.get("/api/index?__path=dashboard")
+        assert response.status_code == 200
+        content = response.data.decode("utf-8")
+        assert "HydroPulse" in content
+        assert "dashboard" in content.lower()
+
+    def test_vercel_rewrite_path_parameter_static_css(self, client):
+        """Verify Vercel rewrite /api/index?__path=static/css/dashboard.css serves CSS."""
+        response = client.get("/api/index?__path=static/css/dashboard.css")
+        assert response.status_code == 200
+        assert "text/css" in response.headers.get("Content-Type", "")
+        content = response.data.decode("utf-8")
+        assert "INVERSA" in content or "dashboard" in content or len(content) > 1000
+
+    def test_vercel_rewrite_path_parameter_with_query(self, client):
+        """Verify Vercel rewrite with additional query parameters strips __path cleanly."""
+        response = client.get("/api/index?days=3&__path=api/v1/stations/damodar_ramgarh/forecast")
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data["station_id"] == "damodar_ramgarh"
+        assert data["forecast_days"] == 3
+
     def test_vercel_forwarded_path_header(self, client):
         """Simulate Vercel rewriting /(.*) to /api/index with X-Vercel-Forwarded-Path."""
         response = client.get(
